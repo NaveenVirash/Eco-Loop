@@ -1,0 +1,255 @@
+/* ── POST AD ─────────────────────── */
+.post-sec {
+  background: #fff;
+  padding: 88px 0;
+}
+
+.post-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 72px;
+  align-items: start;
+}
+
+.post-side-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(26px, 3.5vw, 40px);
+  font-weight: 700;
+  letter-spacing: -1px;
+  color: var(--ink);
+  margin-bottom: 14px;
+  line-height: 1.15;
+}
+
+.post-side-desc {
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--ink2);
+  line-height: 1.75;
+  margin-bottom: 26px;
+}
+
+.pts-earn-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 26px;
+}
+
+.pel-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--sand);
+  border-radius: var(--r-md);
+  border: 1px solid var(--bdr);
+}
+
+.pel-act {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.pel-val {
+  font-family: 'Fraunces', serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--g);
+}
+
+.progress-box {
+  background: var(--g);
+  border-radius: var(--r-lg);
+  padding: 22px 24px;
+  color: #fff;
+}
+
+.pb-title {
+  font-family: 'Fraunces', serif;
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 7px;
+}
+
+.pb-desc {
+  font-size: 13px;
+  opacity: 0.8;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.pb-bar-wrap {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 99px;
+  height: 7px;
+}
+
+.pb-bar {
+  background: #fff;
+  height: 100%;
+  border-radius: 99px;
+  width: 75%;
+}
+
+.pb-lbl {
+  font-size: 11px;
+  opacity: 0.6;
+  margin-top: 6px;
+}
+
+.form-box {
+  background: var(--sand);
+  border: 1px solid var(--bdr);
+  border-radius: var(--r-xl);
+  padding: 32px;
+}
+
+.form-title {
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 22px;
+  color: var(--ink);
+}
+
+.fg {
+  margin-bottom: 16px;
+}
+
+.fl {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink2);
+  display: block;
+  margin-bottom: 7px;
+}
+
+.fi,
+.fsel,
+.fta {
+  width: 100%;
+  padding: 11px 15px;
+  background: #fff;
+  border: 1.5px solid var(--bdr);
+  border-radius: var(--r-md);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.fi:focus,
+.fsel:focus,
+.fta:focus {
+  border-color: var(--g);
+}
+
+.fta {
+  resize: none;
+  min-height: 80px;
+}
+
+.price-tog {
+  display: flex;
+  gap: 8px;
+}
+
+.ptog {
+  flex: 1;
+  padding: 11px;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--bdr);
+  background: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  color: var(--ink2);
+  transition: all 0.15s;
+}
+
+.ptog.sf {
+  border-color: var(--g);
+  background: var(--g-lt);
+  color: var(--g-dk);
+}
+
+.ptog.sp {
+  border-color: var(--amber);
+  background: var(--amb-lt);
+  color: var(--amber);
+}
+
+.upload-z {
+  border: 2px dashed var(--g-mid);
+  border-radius: var(--r-md);
+  padding: 24px;
+  text-align: center;
+  background: var(--g-lt);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.upload-z:hover {
+  background: #d6f0e5;
+}
+
+.uz-icon {
+  font-size: 26px;
+  margin-bottom: 6px;
+}
+
+.uz-txt {
+  font-size: 12px;
+  color: var(--g-dk);
+}
+
+.uz-sub {
+  font-size: 11px;
+  color: var(--g-mid);
+  margin-top: 3px;
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: 18px;
+  background: var(--g);
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 14px;
+  border-radius: var(--r-md);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: var(--g-dk);
+}
+
+.submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ── RESPONSIVE ─────────────────────── */
+@media (max-width: 1024px) {
+  .post-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .form-box {
+    padding: 22px;
+  }
+}

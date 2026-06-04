@@ -1,0 +1,236 @@
+/* ── RESET ─────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: #F8F7F3;
+  color: #1A1A18;
+  overflow-x: hidden;
+}
+
+/* ── TOKENS ─────────────────────── */
+:root {
+  --g: #1E9B6B;
+  --g-dk: #136B49;
+  --g-lt: #E8F5EF;
+  --g-mid: #5EC99A;
+  --amber: #C47B14;
+  --amb-lt: #FBF0DA;
+  --coral: #D45A2A;
+  --cor-lt: #FAECE5;
+  --blue: #2563A8;
+  --blu-lt: #E8F0FB;
+  --sand: #F8F7F3;
+  --sand2: #EEECEA;
+  --ink: #1A1A18;
+  --ink2: #5A5A56;
+  --ink3: #9A9A96;
+  --white: #FFFFFF;
+  --bdr: rgba(26, 26, 24, 0.09);
+  --r-sm: 6px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-xl: 26px;
+  --sh-sm: 0 1px 4px rgba(0, 0, 0, 0.06);
+  --sh-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --sh-lg: 0 16px 48px rgba(0, 0, 0, 0.11);
+}
+
+/* ── SCROLLBAR ─────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--g-mid);
+  border-radius: 99px;
+}
+
+/* ── UTILITIES ─────────────────────── */
+.wrap {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 4px 11px;
+  border-radius: 99px;
+}
+
+.chip-g {
+  background: var(--g-lt);
+  color: var(--g-dk);
+}
+
+.chip-a {
+  background: var(--amb-lt);
+  color: var(--amber);
+}
+
+.chip-c {
+  background: var(--cor-lt);
+  color: var(--coral);
+}
+
+.chip-b {
+  background: var(--blu-lt);
+  color: var(--blue);
+}
+
+.chip-gray {
+  background: var(--sand2);
+  color: var(--ink2);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 11px 22px;
+  border-radius: 99px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-g {
+  background: var(--g);
+  color: #fff;
+}
+
+.btn-g:hover {
+  background: var(--g-dk);
+  box-shadow: 0 6px 20px rgba(30, 155, 107, 0.3);
+}
+
+.btn-out {
+  background: transparent;
+  color: var(--ink);
+  border: 1.5px solid var(--bdr);
+}
+
+.btn-out:hover {
+  border-color: var(--g);
+  color: var(--g);
+}
+
+.btn-wh {
+  background: #fff;
+  color: var(--g-dk);
+}
+
+.btn-wh:hover {
+  background: var(--g-lt);
+}
+
+.btn-lg {
+  font-size: 15px;
+  padding: 14px 28px;
+}
+
+.btn-sm {
+  font-size: 12px;
+  padding: 8px 16px;
+}
+
+/* ── ANIMATIONS ─────────────────────── */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.fu {
+  animation: fadeUp 0.6s ease both;
+}
+
+.d1 {
+  animation-delay: 0.08s;
+}
+
+.d2 {
+  animation-delay: 0.16s;
+}
+
+.d3 {
+  animation-delay: 0.24s;
+}
+
+.d4 {
+  animation-delay: 0.32s;
+}
+
+.d5 {
+  animation-delay: 0.4s;
+}
+
+/* ── RESPONSIVE ─────────────────────── */
+@media (max-width: 1024px) {
+  .wrap {
+    padding: 0 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .wrap {
+    padding: 0 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wrap {
+    padding: 0 16px;
+  }
+}

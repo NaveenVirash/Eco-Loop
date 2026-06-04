@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoLoop — Community Recyclable Redistribution Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,700;1,300;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── RESET ─────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#F8F7F3;color:#1A1A18;overflow-x:hidden}
+
+/* ── TOKENS ─────────────────────── */
+:root{
+  --g:       #1E9B6B;
+  --g-dk:    #136B49;
+  --g-lt:    #E8F5EF;
+  --g-mid:   #5EC99A;
+  --amber:   #C47B14;
+  --amb-lt:  #FBF0DA;
+  --coral:   #D45A2A;
+  --cor-lt:  #FAECE5;
+  --blue:    #2563A8;
+  --blu-lt:  #E8F0FB;
+  --sand:    #F8F7F3;
+  --sand2:   #EEECEA;
+  --ink:     #1A1A18;
+  --ink2:    #5A5A56;
+  --ink3:    #9A9A96;
+  --white:   #FFFFFF;
+  --bdr:     rgba(26,26,24,.09);
+  --r-sm:    6px;
+  --r-md:    12px;
+  --r-lg:    18px;
+  --r-xl:    26px;
+  --sh-sm:   0 1px 4px rgba(0,0,0,.06);
+  --sh-md:   0 4px 20px rgba(0,0,0,.08);
+  --sh-lg:   0 16px 48px rgba(0,0,0,.11);
+}
+
+/* ── SCROLLBAR ─────────────────────── */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:var(--g-mid);border-radius:99px}
+
+/* ── UTILITIES ─────────────────────── */
+.wrap{max-width:1160px;margin:0 auto;padding:0 40px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:4px 11px;border-radius:99px}
+.chip-g{background:var(--g-lt);color:var(--g-dk)}
+.chip-a{background:var(--amb-lt);color:var(--amber)}
+.chip-c{background:var(--cor-lt);color:var(--coral)}
+.chip-b{background:var(--blu-lt);color:var(--blue)}
+.chip-gray{background:var(--sand2);color:var(--ink2)}
+
+.btn{display:inline-flex;align-items:center;gap:7px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;padding:11px 22px;border-radius:99px;border:none;cursor:pointer;text-decoration:none;transition:all .2s ease}
+.btn:hover{transform:translateY(-1px)}
+.btn-g{background:var(--g);color:#fff}
+.btn-g:hover{background:var(--g-dk);box-shadow:0 6px 20px rgba(30,155,107,.3)}
+.btn-out{background:transparent;color:var(--ink);border:1.5px solid var(--bdr)}
+.btn-out:hover{border-color:var(--g);color:var(--g)}
+.btn-wh{background:#fff;color:var(--g-dk)}
+.btn-wh:hover{background:var(--g-lt)}
+.btn-lg{font-size:15px;padding:14px 28px}
+.btn-sm{font-size:12px;padding:8px 16px}
+
+/* ── ANIMATIONS ─────────────────────── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes ping{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.5);opacity:0}}
+.fu{animation:fadeUp .6s ease both}
+.d1{animation-delay:.08s}.d2{animation-delay:.16s}.d3{animation-delay:.24s}.d4{animation-delay:.32s}.d5{animation-delay:.40s}
+
+/* ── NAVBAR ─────────────────────── */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:64px;display:flex;align-items:center;
+  background:rgba(248,247,243,.9);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--bdr);
+}
+.nav-row{display:flex;align-items:center;justify-content:space-between;width:100%}
+.logo{display:flex;align-items:center;gap:9px;font-family:'Fraunces',serif;font-size:21px;font-weight:700;color:var(--ink);text-decoration:none}
+.logo-mark{width:32px;height:32px;background:var(--g);border-radius:9px 2px 9px 2px;display:flex;align-items:center;justify-content:center}
+.logo span{color:var(--g)}
+.nav-links{display:flex;list-style:none;gap:2px}
+.nav-links a{font-size:13px;font-weight:500;color:var(--ink2);text-decoration:none;padding:7px 13px;border-radius:7px;transition:all .15s}
+.nav-links a:hover{color:var(--ink);background:var(--sand2)}
+.nav-right{display:flex;align-items:center;gap:9px}
+.pts-pill{display:flex;align-items:center;gap:5px;background:var(--g-lt);color:var(--g-dk);border:1px solid rgba(94,201,154,.4);padding:5px 11px;border-radius:99px;font-size:12px;font-weight:600}
+.ham{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px}
+.ham span{display:block;width:21px;height:2px;background:var(--ink);border-radius:2px;transition:all .3s}
+.mob-menu{display:none;position:fixed;top:64px;left:0;right:0;z-index:99;background:#fff;border-bottom:1px solid var(--bdr);padding:18px 24px;flex-direction:column;gap:2px}
+.mob-menu.open{display:flex}
+.mob-menu a{font-size:15px;font-weight:500;color:var(--ink);text-decoration:none;padding:11px 0;border-bottom:1px solid var(--bdr)}
+
+/* ── HERO ─────────────────────── */
+.hero{min-height:100vh;display:flex;align-items:center;padding-top:64px;position:relative;overflow:hidden}
+.hero-blob{position:absolute;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 55% 50% at 75% 45%,rgba(94,201,154,.18) 0%,transparent 70%),
+    radial-gradient(ellipse 35% 30% at 10% 75%,rgba(196,123,20,.10) 0%,transparent 60%);
+}
+.hero-dots{position:absolute;inset:0;z-index:0;
+  background-image:radial-gradient(circle,rgba(26,26,24,.07) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+.hero-inner{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;padding:80px 0}
+.hero-kicker{display:flex;align-items:center;gap:8px;margin-bottom:22px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--g);position:relative}
+.live-dot::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:1.5px solid var(--g);animation:ping 1.6s ease-out infinite}
+.hero-kicker span{font-size:12px;color:var(--g);font-weight:600}
+h1.hero-title{
+  font-family:'Fraunces',serif;
+  font-size:clamp(40px,5vw,68px);font-weight:700;line-height:1.08;
+  letter-spacing:-1.5px;color:var(--ink);margin-bottom:22px;
+}
+h1.hero-title em{font-style:italic;color:var(--g)}
+.hero-desc{font-size:17px;font-weight:300;color:var(--ink2);line-height:1.75;margin-bottom:34px;max-width:440px}
+.hero-ctas{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:44px}
+.hero-trust{display:flex;align-items:center;gap:14px}
+.avs{display:flex}
+.av{width:30px;height:30px;border-radius:50%;border:2px solid #fff;background:var(--g-lt);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--g-dk);margin-left:-7px}
+.av:first-child{margin-left:0}
+.hero-trust-txt{font-size:12px;color:var(--ink2)}
+.hero-trust-txt strong{color:var(--ink)}
+
+/* Hero visual */
+.hero-vis{display:flex;justify-content:center;align-items:center;position:relative}
+.item-mosaic{
+  display:grid;grid-template-columns:1fr 1fr;gap:14px;
+  width:340px;
+}
+.mosaic-card{
+  background:#fff;border:1px solid var(--bdr);border-radius:var(--r-lg);
+  padding:18px;box-shadow:var(--sh-sm);
+  transition:transform .3s;
+}
+.mosaic-card:nth-child(1){animation:float 4s ease-in-out infinite}
+.mosaic-card:nth-child(2){animation:float 4.5s ease-in-out infinite .4s;margin-top:20px}
+.mosaic-card:nth-child(3){animation:float 3.8s ease-in-out infinite .8s;margin-top:-20px}
+.mosaic-card:nth-child(4){animation:float 4.2s ease-in-out infinite .2s}
+.mc-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:20px}
+.mc-name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px}
+.mc-loc{font-size:11px;color:var(--ink3)}
+.mc-price{margin-top:8px}
+
+/* ── STATS ─────────────────────── */
+.stats-bar{background:var(--g);padding:18px 0}
+.stats-row{display:flex;align-items:center;justify-content:space-around;gap:16px}
+.s-item{text-align:center}
+.s-num{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:#fff}
+.s-lbl{font-size:11px;color:rgba(255,255,255,.65);margin-top:1px}
+.s-sep{width:1px;height:36px;background:rgba(255,255,255,.2)}
+
+/* ── SECTIONS ─────────────────────── */
+.sec{padding:88px 0}
+.sec-kicker{text-align:center;margin-bottom:14px}
+.sec-title{
+  font-family:'Fraunces',serif;
+  font-size:clamp(30px,4vw,48px);font-weight:700;
+  letter-spacing:-1px;text-align:center;color:var(--ink);margin-bottom:14px;
+}
+.sec-sub{
+  font-size:16px;font-weight:300;color:var(--ink2);
+  text-align:center;max-width:500px;margin:0 auto 60px;line-height:1.75;
+}
+
+/* ── HOW IT WORKS ─────────────────────── */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.step{
+  background:#fff;border:1px solid var(--bdr);border-radius:var(--r-xl);padding:30px 26px;
+  transition:all .25s;position:relative;overflow:hidden;
+}
+.step::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--g);transform:scaleX(0);transform-origin:left;
+  transition:transform .3s;
+}
+.step:hover{transform:translateY(-4px);box-shadow:var(--sh-md)}
+.step:hover::before{transform:scaleX(1)}
+.step-n{font-family:'Fraunces',serif;font-size:48px;font-weight:700;color:var(--g-lt);line-height:1;margin-bottom:12px;letter-spacing:-2px}
+.step-icon{width:44px;height:44px;border-radius:11px;background:var(--g-lt);display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-size:20px}
+.step-title{font-family:'Fraunces',serif;font-size:17px;font-weight:600;margin-bottom:8px;color:var(--ink)}
+.step-desc{font-size:13px;color:var(--ink2);line-height:1.65}
+.step-pts{margin-top:14px;font-size:11px;font-weight:600;color:var(--g-dk);background:var(--g-lt);padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:4px}
+
+/* ── LISTINGS ─────────────────────── */
+.listings-sec{background:var(--sand2)}
+.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:36px;flex-wrap:wrap}
+.fb{font-size:12px;font-weight:600;padding:7px 16px;border-radius:99px;border:1.5px solid var(--bdr);background:#fff;color:var(--ink2);cursor:pointer;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif}
+.fb:hover,.fb.on{background:var(--g);color:#fff;border-color:var(--g)}
+.fsearch{margin-left:auto;display:flex;align-items:center;gap:7px;background:#fff;border:1.5px solid var(--bdr);border-radius:99px;padding:7px 15px;min-width:210px}
+.fsearch input{border:none;outline:none;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:var(--ink);width:100%}
+.listings-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.lcard{background:#fff;border:1px solid var(--bdr);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;transition:all .22s cubic-bezier(.34,1.56,.64,1)}
+.lcard:hover{transform:translateY(-5px);box-shadow:var(--sh-md);border-color:var(--g-mid)}
+.lcard-img{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;position:relative}
+.lcard-img .ci{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px}
+.lcard-save{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-sm);cursor:pointer;transition:transform .2s;font-size:13px}
+.lcard-save:hover{transform:scale(1.2)}
+.cond-badge{position:absolute;top:10px;left:10px}
+.lcard-body{padding:16px}
+.lcard-title{font-family:'Fraunces',serif;font-size:15px;font-weight:600;margin-bottom:3px;color:var(--ink)}
+.lcard-meta{font-size:12px;color:var(--ink3);margin-bottom:10px}
+.lcard-foot{display:flex;align-items:center;justify-content:space-between}
+.price{font-family:'Fraunces',serif;font-size:15px;font-weight:700}
+.price-free{color:var(--g)}
+.price-paid{color:var(--amber)}
+.pts-badge{display:flex;align-items:center;gap:3px;font-size:11px;color:var(--g);font-weight:600;background:var(--g-lt);padding:3px 8px;border-radius:99px}
+
+/* ── RECYCLING PARTNERS ─────────────────────── */
+.recycle-sec{background:#fff}
+.partners-layout{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start}
+.partners-intro{}
+.partners-title{font-family:'Fraunces',serif;font-size:clamp(26px,3.5vw,42px);font-weight:700;letter-spacing:-1px;color:var(--ink);margin-bottom:14px;line-height:1.15}
+.partners-desc{font-size:15px;font-weight:300;color:var(--ink2);line-height:1.75;margin-bottom:28px}
+.how-collect{display:flex;flex-direction:column;gap:14px;margin-bottom:32px}
+.collect-step{display:flex;align-items:flex-start;gap:14px;padding:16px;background:var(--sand);border-radius:var(--r-md);border:1px solid var(--bdr)}
+.collect-step .cs-num{width:28px;height:28px;border-radius:50%;background:var(--g);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cs-body .cs-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.cs-body .cs-desc{font-size:12px;color:var(--ink2);line-height:1.55}
+
+.partner-cards{display:flex;flex-direction:column;gap:14px}
+.partner-card{
+  background:var(--sand);border:1px solid var(--bdr);border-radius:var(--r-lg);
+  padding:22px 24px;display:flex;align-items:center;gap:18px;
+  transition:all .2s;cursor:pointer;
+}
+.partner-card:hover{border-color:var(--g-mid);box-shadow:var(--sh-sm);background:#fff}
+.partner-logo{width:56px;height:56px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.partner-info{flex:1}
+.partner-name{font-family:'Fraunces',serif;font-size:16px;font-weight:600;color:var(--ink);margin-bottom:3px}
+.partner-desc{font-size:12px;color:var(--ink2);line-height:1.5;margin-bottom:8px}
+.partner-tags{display:flex;gap:5px;flex-wrap:wrap}
+.partner-tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px}
+.partner-status{flex-shrink:0;text-align:center}
+.partner-status .status-dot{width:8px;height:8px;border-radius:50%;background:var(--g);margin:0 auto 4px}
+.partner-status .status-txt{font-size:10px;color:var(--g);font-weight:600}
+
+.schedule-btn{
+  width:100%;margin-top:6px;
+  background:var(--g-lt);color:var(--g-dk);border:1.5px solid rgba(94,201,154,.4);
+  font-size:13px;font-weight:600;padding:13px;border-radius:var(--r-md);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  cursor:pointer;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.schedule-btn:hover{background:var(--g);color:#fff;border-color:var(--g)}
+
+/* ── LEADERBOARD ─────────────────────── */
+.lb-sec{background:var(--ink)}
+.lb-sec .sec-title{color:#fff}
+.lb-sec .sec-sub{color:rgba(255,255,255,.45)}
+
+.lb-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:56px;align-items:start}
+
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:10px;margin-bottom:28px}
+.pod-item{display:flex;flex-direction:column;align-items:center;gap:8px}
+.pod-av-wrap{position:relative}
+.pod-av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700}
+.pod-item.r1 .pod-av{width:68px;height:68px;font-size:20px;background:rgba(196,123,20,.25);color:#FAC775;border:2.5px solid #C47B14}
+.pod-item.r2 .pod-av,.pod-item.r3 .pod-av{width:52px;height:52px;font-size:16px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);border:2px solid rgba(255,255,255,.15)}
+.pod-crown{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:18px}
+.pod-name{font-size:12px;font-weight:600;color:#fff}
+.pod-pts{font-size:10px;color:rgba(255,255,255,.4)}
+.pod-block{border-radius:6px 6px 0 0;width:72px;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:16px;font-weight:700;color:rgba(255,255,255,.2)}
+.pod-item.r1 .pod-block{height:72px;background:rgba(196,123,20,.15)}
+.pod-item.r2 .pod-block{height:52px;background:rgba(255,255,255,.05)}
+.pod-item.r3 .pod-block{height:36px;background:rgba(255,255,255,.03)}
+
+.lb-list{display:flex;flex-direction:column;gap:7px}
+.lb-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--r-md);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);transition:background .15s}
+.lb-row:hover{background:rgba(255,255,255,.07)}
+.lb-row.me{border-color:var(--g-mid);background:rgba(30,155,107,.1)}
+.lb-rank{font-family:'Fraunces',serif;font-size:13px;font-weight:700;color:rgba(255,255,255,.3);width:22px}
+.lb-av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lb-name{flex:1;font-size:13px;font-weight:500;color:#fff}
+.lb-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px}
+.lb-pts{font-family:'Fraunces',serif;font-size:13px;font-weight:700;color:var(--g-mid)}
+
+.badges-row{margin-top:36px}
+.badges-head{font-size:11px;font-weight:600;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+.badges-g{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.badge-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:var(--r-md);padding:14px;display:flex;align-items:center;gap:10px}
+.badge-card.earned{border-color:var(--g-mid)}
+.badge-card.locked{opacity:.4}
+.badge-ic{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.badge-name{font-size:12px;font-weight:600;color:#fff}
+.badge-req{font-size:10px;color:rgba(255,255,255,.35);margin-top:1px}
+
+/* ── POINTS ─────────────────────── */
+.pts-sec{background:var(--g-lt)}
+.pts-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.pt-card{background:#fff;border-radius:var(--r-lg);padding:26px 22px;text-align:center;border:1px solid rgba(94,201,154,.2);transition:transform .25s}
+.pt-card:hover{transform:translateY(-4px)}
+.pt-icon{font-size:28px;margin-bottom:10px}
+.pt-num{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--g);margin-bottom:5px}
+.pt-lbl{font-size:13px;color:var(--ink2)}
+
+/* ── POST AD ─────────────────────── */
+.post-sec{background:#fff}
+.post-layout{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start}
+.post-side-title{font-family:'Fraunces',serif;font-size:clamp(26px,3.5vw,40px);font-weight:700;letter-spacing:-1px;color:var(--ink);margin-bottom:14px;line-height:1.15}
+.post-side-desc{font-size:15px;font-weight:300;color:var(--ink2);line-height:1.75;margin-bottom:26px}
+.pts-earn-list{display:flex;flex-direction:column;gap:8px;margin-bottom:26px}
+.pel-row{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--sand);border-radius:var(--r-md);border:1px solid var(--bdr)}
+.pel-act{font-size:13px;font-weight:500;color:var(--ink)}
+.pel-val{font-family:'Fraunces',serif;font-size:14px;font-weight:700;color:var(--g)}
+.progress-box{background:var(--g);border-radius:var(--r-lg);padding:22px 24px;color:#fff}
+.pb-title{font-family:'Fraunces',serif;font-size:17px;font-weight:600;margin-bottom:7px}
+.pb-desc{font-size:13px;opacity:.8;line-height:1.6;margin-bottom:14px}
+.pb-bar-wrap{background:rgba(255,255,255,.2);border-radius:99px;height:7px}
+.pb-bar{background:#fff;height:100%;border-radius:99px;width:75%}
+.pb-lbl{font-size:11px;opacity:.6;margin-top:6px}
+
+.form-box{background:var(--sand);border:1px solid var(--bdr);border-radius:var(--r-xl);padding:32px}
+.form-title{font-family:'Fraunces',serif;font-size:18px;font-weight:700;margin-bottom:22px;color:var(--ink)}
+.fg{margin-bottom:16px}
+.fl{font-size:12px;font-weight:600;color:var(--ink2);display:block;margin-bottom:7px}
+.fi,.fsel,.fta{
+  width:100%;padding:11px 15px;
+  background:#fff;border:1.5px solid var(--bdr);border-radius:var(--r-md);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:var(--ink);
+  outline:none;transition:border-color .15s;
+}
+.fi:focus,.fsel:focus,.fta:focus{border-color:var(--g)}
+.fta{resize:none;min-height:80px}
+.price-tog{display:flex;gap:8px}
+.ptog{flex:1;padding:11px;border-radius:var(--r-md);border:1.5px solid var(--bdr);background:#fff;font-size:12px;font-weight:600;cursor:pointer;text-align:center;color:var(--ink2);transition:all .15s}
+.ptog.sf{border-color:var(--g);background:var(--g-lt);color:var(--g-dk)}
+.ptog.sp{border-color:var(--amber);background:var(--amb-lt);color:var(--amber)}
+.upload-z{border:2px dashed var(--g-mid);border-radius:var(--r-md);padding:24px;text-align:center;background:var(--g-lt);cursor:pointer;transition:all .15s}
+.upload-z:hover{background:#d6f0e5}
+.uz-icon{font-size:26px;margin-bottom:6px}
+.uz-txt{font-size:12px;color:var(--g-dk)}
+.uz-sub{font-size:11px;color:var(--g-mid);margin-top:3px}
+.submit-btn{width:100%;margin-top:18px;background:var(--g);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;padding:14px;border-radius:var(--r-md);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.submit-btn:hover{background:var(--g-dk)}
+
+/* ── CTA ─────────────────────── */
+.cta-sec{padding:88px 0;background:var(--ink);position:relative;overflow:hidden;text-align:center}
+.cta-glow{position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 50% 50%,rgba(30,155,107,.12) 0%,transparent 70%)}
+.cta-inner{position:relative;z-index:1;max-width:560px;margin:0 auto}
+.cta-title{font-family:'Fraunces',serif;font-size:clamp(34px,5vw,56px);font-weight:700;color:#fff;letter-spacing:-1.5px;margin-bottom:18px}
+.cta-desc{font-size:16px;color:rgba(255,255,255,.5);margin-bottom:34px;line-height:1.7}
+.cta-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.cta-nums{margin-top:48px;display:flex;gap:40px;justify-content:center}
+.cn-item{text-align:center}
+.cn-num{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--g-mid)}
+.cn-lbl{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
+
+/* ── FOOTER ─────────────────────── */
+footer{background:#111;padding:56px 0 28px}
+.foot-inner{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:36px;margin-bottom:44px}
+.foot-logo{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.foot-desc{font-size:13px;color:rgba(255,255,255,.4);line-height:1.7;margin-bottom:18px}
+.foot-eco{display:flex;align-items:center;gap:7px;background:rgba(30,155,107,.1);border:1px solid rgba(30,155,107,.2);padding:7px 14px;border-radius:99px;font-size:11px;color:var(--g-mid)}
+.foot-col-h{font-size:11px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px}
+.foot-links{list-style:none;display:flex;flex-direction:column;gap:7px}
+.foot-links a{font-size:13px;color:rgba(255,255,255,.4);text-decoration:none;transition:color .15s}
+.foot-links a:hover{color:var(--g-mid)}
+.foot-bot{border-top:1px solid rgba(255,255,255,.07);padding-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.foot-bot-txt{font-size:12px;color:rgba(255,255,255,.3)}
+.foot-socials{display:flex;gap:14px}
+.foot-socials a{font-size:12px;color:rgba(255,255,255,.3);text-decoration:none;transition:color .15s}
+.foot-socials a:hover{color:var(--g-mid)}
+
+/* ── RESPONSIVE ─────────────────────── */
+@media(max-width:1024px){
+  .hero-inner{grid-template-columns:1fr;text-align:center;gap:52px}
+  .hero-desc{margin:0 auto 34px}
+  .hero-ctas{justify-content:center}
+  .hero-trust{justify-content:center}
+  .hero-vis{display:none}
+  .steps{grid-template-columns:1fr 1fr}
+  .listings-grid{grid-template-columns:1fr 1fr}
+  .partners-layout{grid-template-columns:1fr}
+  .lb-grid{grid-template-columns:1fr}
+  .post-layout{grid-template-columns:1fr}
+  .pts-grid{grid-template-columns:repeat(2,1fr)}
+  .foot-inner{grid-template-columns:1fr 1fr}
+  .wrap{padding:0 24px}
+}
+@media(max-width:768px){
+  .nav-links,.nav-right .btn,.pts-pill{display:none}
+  .ham{display:flex}
+  h1.hero-title{font-size:38px}
+  .hero-desc{font-size:15px}
+  .sec{padding:64px 0}
+  .steps{grid-template-columns:1fr}
+  .listings-grid{grid-template-columns:1fr}
+  .stats-row{flex-wrap:wrap;gap:20px}
+  .s-sep{display:none}
+  .badges-g{grid-template-columns:1fr}
+  .filter-bar{flex-wrap:wrap}
+  .fsearch{min-width:100%;margin-left:0}
+  .foot-inner{grid-template-columns:1fr}
+  .foot-bot{flex-direction:column;gap:12px}
+  .cta-nums{gap:20px;flex-wrap:wrap}
+  .pts-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  .wrap{padding:0 16px}
+  .hero-inner{padding:48px 0}
+  .form-box{padding:22px}
+  .steps{gap:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="wrap">
+    <div class="nav-row">
+      <a class="logo" href="#">
+        <div class="logo-mark">
+          <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><path d="M2.5 14.5C2.5 6,14.5 2.5,14.5 2.5C14.5 2.5,11 14.5,2.5 14.5Z" fill="white"/></svg>
+        </div>
+        Eco<span>Loop</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#browse">Browse</a></li>
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#recyclers">Recycling Partners</a></li>
+        <li><a href="#leaderboard">Top Fans</a></li>
+        <li><a href="#post">Post Ad</a></li>
+      </ul>
+      <div class="nav-right">
+        <div class="pts-pill">⭐ 240 pts</div>
+        <a href="#post" class="btn btn-out btn-sm">Sign in</a>
+        <a href="#post" class="btn btn-g btn-sm">Post Ad</a>
+      </div>
+      <button class="ham" onclick="toggleMenu()"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="mob-menu" id="mobMenu">
+  <a href="#browse" onclick="toggleMenu()">Browse Listings</a>
+  <a href="#how" onclick="toggleMenu()">How it works</a>
+  <a href="#recyclers" onclick="toggleMenu()">Recycling Partners</a>
+  <a href="#leaderboard" onclick="toggleMenu()">Top Fans</a>
+  <a href="#post" onclick="toggleMenu()">Post an Ad</a>
+  <a href="#post" onclick="toggleMenu()" style="color:var(--g);font-weight:700;">Sign in / Register</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-blob"></div>
+  <div class="hero-dots"></div>
+  <div class="wrap">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-kicker fu">
+          <div class="live-dot"></div>
+          <span>486 items shared this week</span>
+        </div>
+        <h1 class="hero-title fu d1">
+          Give your<br>household goods<br>a <em>second life</em>
+        </h1>
+        <p class="hero-desc fu d2">Share usable items with your community — free or for a small price. Items that can't be reused go straight to certified recycling partners. Zero waste, maximum impact.</p>
+        <div class="hero-ctas fu d3">
+          <a href="#browse" class="btn btn-g btn-lg">Browse items</a>
+          <a href="#post" class="btn btn-out btn-lg">Post an ad →</a>
+        </div>
+        <div class="hero-trust fu d4">
+          <div class="avs">
+            <div class="av">NK</div><div class="av">SR</div><div class="av">PF</div><div class="av">AW</div>
+            <div class="av" style="background:var(--g);color:#fff;">+</div>
+          </div>
+          <span class="hero-trust-txt"><strong>4,200+</strong> members across Sri Lanka</span>
+        </div>
+      </div>
+      <div class="hero-vis fu d5">
+        <div class="item-mosaic">
+          <div class="mosaic-card">
+            <div class="mc-icon" style="background:#E8F5EF;">🪑</div>
+            <div class="mc-name">Wooden Chair</div>
+            <div class="mc-loc">Colombo 07</div>
+            <div class="mc-price"><span class="chip chip-g">Free</span></div>
+          </div>
+          <div class="mosaic-card">
+            <div class="mc-icon" style="background:#E8F0FB;">📱</div>
+            <div class="mc-name">Samsung S9</div>
+            <div class="mc-loc">Kandy</div>
+            <div class="mc-price"><span class="chip chip-a">LKR 8,000</span></div>
+          </div>
+          <div class="mosaic-card">
+            <div class="mc-icon" style="background:#FBF0DA;">👕</div>
+            <div class="mc-name">Kids Clothes × 10</div>
+            <div class="mc-loc">Galle</div>
+            <div class="mc-price"><span class="chip chip-g">Free</span></div>
+          </div>
+          <div class="mosaic-card">
+            <div class="mc-icon" style="background:#FAECE5;">🔧</div>
+            <div class="mc-name">Toolbox Set</div>
+            <div class="mc-loc">Negombo</div>
+            <div class="mc-price"><span class="chip chip-a">LKR 2,500</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="wrap">
+    <div class="stats-row">
+      <div class="s-item"><div class="s-num">3,840</div><div class="s-lbl">Active Listings</div></div>
+      <div class="s-sep"></div>
+      <div class="s-item"><div class="s-num">486</div><div class="s-lbl">Shared This Week</div></div>
+      <div class="s-sep"></div>
+      <div class="s-item"><div class="s-num">4,200+</div><div class="s-lbl">Members</div></div>
+      <div class="s-sep"></div>
+      <div class="s-item"><div class="s-num">12+</div><div class="s-lbl">Recycling Partners</div></div>
+      <div class="s-sep"></div>
+      <div class="s-item"><div class="s-num">30%</div><div class="s-lbl">Waste Diverted</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="sec" id="how">
+  <div class="wrap">
+    <div class="sec-kicker"><span class="chip chip-g">Simple process</span></div>
+    <h2 class="sec-title">How EcoLoop works</h2>
+    <p class="sec-sub">Four steps to turn your unwanted household items into someone else's treasure — or responsibly recycle them.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-n">01</div>
+        <div class="step-icon">📸</div>
+        <div class="step-title">Post your item</div>
+        <div class="step-desc">List any household item — furniture, clothes, kitchenware, electronics. Add photos, describe the condition, set free or a price.</div>
+        <div class="step-pts">⭐ +50 pts for free listing</div>
+      </div>
+      <div class="step" style="background:var(--g);border-color:var(--g);">
+        <div class="step-n" style="color:rgba(255,255,255,.15);">02</div>
+        <div class="step-icon" style="background:rgba(255,255,255,.15);">🔍</div>
+        <div class="step-title" style="color:#fff;">Someone finds it</div>
+        <div class="step-desc" style="color:rgba(255,255,255,.75);">Community members browse, filter by category and city, contact you directly, and arrange a local collection.</div>
+        <div class="step-pts" style="background:rgba(255,255,255,.15);color:#fff;">⭐ +20 pts when claimed</div>
+      </div>
+      <div class="step">
+        <div class="step-n">03</div>
+        <div class="step-icon">♻️</div>
+        <div class="step-title">Send to recycler</div>
+        <div class="step-desc">Items that nobody claims? Schedule a pickup with one of our certified recycling partners. They handle proper disposal.</div>
+        <div class="step-pts">⭐ +15 pts per recycled item</div>
+      </div>
+      <div class="step">
+        <div class="step-n">04</div>
+        <div class="step-icon">🏆</div>
+        <div class="step-title">Earn & climb</div>
+        <div class="step-desc">Every action earns EcoPoints. Collect badges, maintain streaks, and climb the Top Fans leaderboard.</div>
+        <div class="step-pts">⭐ Unlock Top Fan status</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BROWSE LISTINGS -->
+<section class="sec listings-sec" id="browse">
+  <div class="wrap">
+    <div class="sec-kicker"><span class="chip chip-g">Browse items</span></div>
+    <h2 class="sec-title">Find something useful</h2>
+    <p class="sec-sub">Household items, electronics, furniture, clothes — all from neighbours in your community.</p>
+
+    <div class="filter-bar">
+      <button class="fb on" onclick="fcat(this,'all')">All</button>
+      <button class="fb" onclick="fcat(this,'furniture')">Furniture</button>
+      <button class="fb" onclick="fcat(this,'electronics')">Electronics</button>
+      <button class="fb" onclick="fcat(this,'clothing')">Clothing</button>
+      <button class="fb" onclick="fcat(this,'kitchen')">Kitchen</button>
+      <button class="fb" onclick="fcat(this,'tools')">Tools</button>
+      <button class="fb" onclick="fcat(this,'books')">Books & Toys</button>
+      <div class="fsearch">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#9A9A96" stroke-width="1.5"><circle cx="6" cy="6" r="4.5"/><path d="M10.5 10.5l2 2"/></svg>
+        <input type="text" placeholder="Search listings…" oninput="fsearch(this)">
+      </div>
+    </div>
+
+    <div class="listings-grid" id="listGrid">
+
+      <div class="lcard" data-cat="furniture">
+        <div class="lcard-img" style="background:#F0EBE0;">
+          <div class="ci" style="background:#D9C9A8;">🪑</div>
+          <div class="lcard-save">🤍</div>
+          <span class="cond-badge chip chip-g" style="font-size:10px;">Good</span>
+        </div>
+        <div class="lcard-body">
+          <div class="lcard-title">Wooden Dining Chair</div>
+          <div class="lcard-meta">Set of 4 · Minor scuffs · Colombo 07</div>
+          <div class="lcard-foot">
+            <span class="price price-free">Free</span>
+            <span class="pts-badge">⭐ +50 pts given</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lcard" data-cat="electronics">
+        <div class="lcard-img" style="background:#E8F0FB;">
+          <div class="ci" style="background:#B5D0F0;">📱</div>
+          <div class="lcard-save">🤍</div>
+          <span class="cond-badge chip chip-a" style="font-size:10px;">Fair</span>
+        </div>
+        <div class="lcard-body">
+          <div class="lcard-title">Samsung Galaxy S9</div>
+          <div class="lcard-meta">Working screen · battery 72% · Kandy</div>
+          <div class="lcard-foot">
+            <span class="price price-paid">LKR 8,000</span>
+            <span class="pts-badge">⭐ +30 pts given</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lcard" data-cat="clothing">
+        <div class="lcard-img" style="background:#F5EBF8;">
+          <div class="ci" style="background:#D9B8E8;">👕</div>
+          <div class="lcard-save">🤍</div>
+          <span class="cond-badge chip chip-g" style="font-size:10px;">Good</span>
+        </div>
+        <div class="lcard-body">
+          <div class="lcard-title">Kids Clothes Bundle</div>
+          <div class="lcard-meta">Ages 3–6 · 10 pieces · Galle</div>
+          <div class="lcard-foot">
+            <span class="price price-free">Free</span>
+            <span class="pts-badge">⭐ +50 pts given</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lcard" data-cat="kitchen">
+        <div class="lcard-img" style="background:#FBF0DA;">
+          <div class="ci" style="background:#F5D08A;">🍳</div>
+          <div class="lcard-save">🤍</div>
+          <span class="cond-badge chip chip-g" style="font-size:10px;">Excellent</span>
+        </div>
+        <div class="lcard-body">
+          <div class="lcard-title">Non-stick Pan Set</div>
+          <div class="lcard-meta">3 pans · barely used · Negombo</div>
+          <div class="lcard-foot">
+            <span class="price price-paid">LKR 1,200</span>
+            <span class="pts-badge">⭐ +30 pts given</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lcard" data-cat="tools">
+        <div class="lcard-img" style="background:#FAECE5;">
+          <div class="ci" style="background:#F0C0A8;">🔧</div>
+          <div class="lcard-save">🤍</div>
+          <span class="cond-badge chip chip-a" style="font-size:10px;">Fair</span>
+        </div>
+        <div class="lcard-body">
+          <div class="lcard-title">Toolbox with Tools</div>
+          <div class="lcard-meta">Hammer, screwdrivers, wrench · Colombo</div>
+          <div class="lcard-foot">
+            <span class="price price-paid">LKR 2,500</span>
+            <span class="pts-badge">⭐ +30 pts given</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lcard" data-cat="books">
+        <div class="lcard-img" style="background:#E8F5EF;">
+          <div class="ci" style="background:#9FE0C4;">📚</div>
+          <div class="lcard-save">🤍</div>
+          <span class="cond-badge chip chip-g" style="font-size:10px;">Good</span>
+        </div>
+        <div class="lcard-body">
+          <div class="lcard-title">Children's Books × 15</div>
+          <div class="lcard-meta">English & Sinhala · ages 4–10 · Matara</div>
+          <div class="lcard-foot">
+            <span class="price price-free">Free</span>
+            <span class="pts-badge">⭐ +50 pts given</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lcard" data-cat="furniture">
+        <div class="lcard-img" style="background:#F0EBE0;">
+          <div class="ci" style="background:#D9C9A8;">🛋️</div>
+          <div class="lcard-save">🤍</div>
+          <span class="cond-badge chip chip-a" style="font-size:10px;">Fair</span>
+        </div>
+        <div class="lcard-body">
+          <div class="lcard-title">2-Seater Sofa</div>
+          <div class="lcard-meta">Brown fabric · slightly worn · Colombo 03</div>
+          <div class="lcard-foot">
+            <span class="price price-paid">LKR 5,000</span>
+            <span class="pts-badge">⭐ +30 pts given</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lcard" data-cat="electronics">
+        <div class="lcard-img" style="background:#E8F0FB;">
+          <div class="ci" style="background:#B5D0F0;">💻</div>
+          <div class="lcard-save">🤍</div>
+          <span class="cond-badge chip chip-g" style="font-size:10px;">Good</span>
+        </div>
+        <div class="lcard-body">
+          <div class="lcard-title">Dell Laptop 14"</div>
+          <div class="lcard-meta">i5 · 8GB RAM · 256GB SSD · Jaffna</div>
+          <div class="lcard-foot">
+            <span class="price price-paid">LKR 42,000</span>
+            <span class="pts-badge">⭐ +30 pts given</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lcard" data-cat="clothing">
+        <div class="lcard-img" style="background:#F5EBF8;">
+          <div class="ci" style="background:#D9B8E8;">👒</div>
+          <div class="lcard-save">🤍</div>
+          <span class="cond-badge chip chip-g" style="font-size:10px;">Excellent</span>
+        </div>
+        <div class="lcard-body">
+          <div class="lcard-title">Ladies Handbags × 3</div>
+          <div class="lcard-meta">Different sizes · barely used · Ratnapura</div>
+          <div class="lcard-foot">
+            <span class="price price-free">Free</span>
+            <span class="pts-badge">⭐ +50 pts given</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div style="text-align:center;margin-top:44px;">
+      <a href="#" class="btn btn-out btn-lg">Load more listings →</a>
+    </div>
+  </div>
+</section>
+
+<!-- RECYCLING PARTNERS 
+<section class="sec recycle-sec" id="recyclers">
+  <div class="wrap">
+    <div class="partners-layout">
+      <div class="partners-intro">
+        <span class="chip chip-b" style="margin-bottom:18px;display:inline-flex;">Recycling Network</span>
+        <h2 class="partners-title">Can't find a taker? We'll recycle it right.</h2>
+        <p class="partners-desc">EcoLoop partners with certified local recycling institutions. If your item goes unclaimed, schedule a free collection — no landfill, no guilt.</p>
+        <div class="how-collect">
+          <div class="collect-step">
+            <div class="cs-num">1</div>
+            <div class="cs-body">
+              <div class="cs-title">Mark item for recycling</div>
+              <div class="cs-desc">If your listing gets no takers after 14 days, tap "Send to Recycler" on your listing.</div>
+            </div>
+          </div>
+          <div class="collect-step">
+            <div class="cs-num">2</div>
+            <div class="cs-body">
+              <div class="cs-title">Choose a partner & schedule pickup</div>
+              <div class="cs-desc">Select from our verified partners by category and area. Pick a date and time slot.</div>
+            </div>
+          </div>
+          <div class="collect-step">
+            <div class="cs-num">3</div>
+            <div class="cs-body">
+              <div class="cs-title">They collect, you earn points</div>
+              <div class="cs-desc">The partner collects from your door. You earn EcoPoints and an eco-impact record.</div>
+            </div>
+          </div>
+        </div>
+        <a href="#post" class="btn btn-g">Schedule a collection →</a>
+      </div>
+
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px;">Our verified partners</div>
+        <div class="partner-cards">
+          <div class="partner-card">
+            <div class="partner-logo" style="background:#E8F0FB;">🖥️</div>
+            <div class="partner-info">
+              <div class="partner-name">E-Cycle Lanka</div>
+              <div class="partner-desc">Specialises in electronics, batteries, and e-waste. Certified EPA handler.</div>
+              <div class="partner-tags">
+                <span class="partner-tag chip chip-b" style="font-size:9px;">Electronics</span>
+                <span class="partner-tag chip chip-b" style="font-size:9px;">Batteries</span>
+              </div>
+            </div>
+            <div class="partner-status"><div class="status-dot"></div><div class="status-txt">Active</div></div>
+          </div>
+          <div class="partner-card">
+            <div class="partner-logo" style="background:#E8F5EF;">♻️</div>
+            <div class="partner-info">
+              <div class="partner-name">GreenCollect SL</div>
+              <div class="partner-desc">General household waste, furniture, and plastics. Island-wide collection routes.</div>
+              <div class="partner-tags">
+                <span class="partner-tag chip chip-g" style="font-size:9px;">Furniture</span>
+                <span class="partner-tag chip chip-g" style="font-size:9px;">Plastics</span>
+                <span class="partner-tag chip chip-g" style="font-size:9px;">General</span>
+              </div>
+            </div>
+            <div class="partner-status"><div class="status-dot"></div><div class="status-txt">Active</div></div>
+          </div>
+          <div class="partner-card">
+            <div class="partner-logo" style="background:#FBF0DA;">👕</div>
+            <div class="partner-info">
+              <div class="partner-name">FabricLoop Foundation</div>
+              <div class="partner-desc">Clothing and textiles recycled into industrial fibre or redistributed to shelters.</div>
+              <div class="partner-tags">
+                <span class="partner-tag chip chip-a" style="font-size:9px;">Clothing</span>
+                <span class="partner-tag chip chip-a" style="font-size:9px;">Textiles</span>
+              </div>
+            </div>
+            <div class="partner-status"><div class="status-dot"></div><div class="status-txt">Active</div></div>
+          </div>
+          <div class="partner-card">
+            <div class="partner-logo" style="background:#FAECE5;">📚</div>
+            <div class="partner-info">
+              <div class="partner-name">PaperCycle Colombo</div>
+              <div class="partner-desc">Books, paper, cardboard. Partners with rural schools and paper mills.</div>
+              <div class="partner-tags">
+                <span class="partner-tag chip chip-c" style="font-size:9px;">Books</span>
+                <span class="partner-tag chip chip-c" style="font-size:9px;">Paper</span>
+              </div>
+            </div>
+            <div class="partner-status"><div class="status-dot"></div><div class="status-txt">Active</div></div>
+          </div>
+        </div>
+        <button class="schedule-btn">📅 Schedule a free collection pickup</button>
+      </div>
+    </div>
+  </div>
+</section> -->
+
+<!-- LEADERBOARD -->
+<section class="sec lb-sec" id="leaderboard">
+  <div class="wrap">
+    <div class="sec-kicker"><span class="chip" style="background:rgba(94,201,154,.15);color:var(--g-mid);">Gamification</span></div>
+    <h2 class="sec-title">Top Fans this month</h2>
+    <p class="sec-sub">The most active community members, ranked by EcoPoints. Every donation, sale, and recycled item counts.</p>
+    <div class="lb-grid">
+      <div>
+        <div class="podium">
+          <div class="pod-item r2">
+            <div class="pod-av-wrap"><div class="pod-av">SR</div></div>
+            <div class="pod-name">Saman R.</div>
+            <div class="pod-pts">1,210 pts</div>
+            <div class="pod-block">2</div>
+          </div>
+          <div class="pod-item r1">
+            <div class="pod-av-wrap">
+              <div class="pod-crown">👑</div>
+              <div class="pod-av">NK</div>
+            </div>
+            <div class="pod-name">Nimal K.</div>
+            <div class="pod-pts">1,840 pts</div>
+            <div class="pod-block">1</div>
+          </div>
+          <div class="pod-item r3">
+            <div class="pod-av-wrap"><div class="pod-av">PF</div></div>
+            <div class="pod-name">Priya F.</div>
+            <div class="pod-pts">990 pts</div>
+            <div class="pod-block">3</div>
+          </div>
+        </div>
+
+        <div class="badges-row">
+          <div class="badges-head">Earn these badges</div>
+          <div class="badges-g">
+            <div class="badge-card earned">
+              <div class="badge-ic" style="background:rgba(30,155,107,.15);">⭐</div>
+              <div><div class="badge-name">First Listing</div><div class="badge-req">Post your first item</div></div>
+            </div>
+            <div class="badge-card earned">
+              <div class="badge-ic" style="background:rgba(196,123,20,.15);">🔥</div>
+              <div><div class="badge-name">3-Day Streak</div><div class="badge-req">Log in 3 days running</div></div>
+            </div>
+            <div class="badge-card locked">
+              <div class="badge-ic" style="background:rgba(255,255,255,.05);">🌿</div>
+              <div><div class="badge-name">Green Hero</div><div class="badge-req">List 5 free items</div></div>
+            </div>
+            <div class="badge-card locked">
+              <div class="badge-ic" style="background:rgba(255,255,255,.05);">♻️</div>
+              <div><div class="badge-name">Recycler</div><div class="badge-req">Send 3 items to partners</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lb-list">
+        <div class="lb-row" style="border-color:rgba(196,123,20,.4);background:rgba(196,123,20,.06);">
+          <div class="lb-rank" style="color:#FAC775;">1</div>
+          <div class="lb-av" style="background:rgba(196,123,20,.2);color:#FAC775;font-weight:700;">NK</div>
+          <div class="lb-name">Nimal Kumara</div>
+          <span class="lb-badge" style="background:rgba(196,123,20,.15);color:#FAC775;font-size:10px;padding:2px 7px;border-radius:99px;">Top Fan 👑</span>
+          <div class="lb-pts">1,840</div>
+        </div>
+        <div class="lb-row">
+          <div class="lb-rank">2</div><div class="lb-av">SR</div>
+          <div class="lb-name">Saman Rajapaksa</div>
+          <span style="font-size:10px;background:rgba(30,155,107,.15);color:var(--g-mid);padding:2px 7px;border-radius:99px;font-weight:600;">Green Hero 🌿</span>
+          <div class="lb-pts">1,210</div>
+        </div>
+        <div class="lb-row">
+          <div class="lb-rank">3</div><div class="lb-av">PF</div>
+          <div class="lb-name">Priya Fernando</div><div style="flex:1"></div>
+          <div class="lb-pts">990</div>
+        </div>
+        <div class="lb-row">
+          <div class="lb-rank">4</div><div class="lb-av">AW</div>
+          <div class="lb-name">Ashan Wickrama</div><div style="flex:1"></div>
+          <div class="lb-pts">780</div>
+        </div>
+        <div class="lb-row">
+          <div class="lb-rank">5</div><div class="lb-av">LD</div>
+          <div class="lb-name">Laila De Silva</div><div style="flex:1"></div>
+          <div class="lb-pts">640</div>
+        </div>
+        <div class="lb-row">
+          <div class="lb-rank">6</div><div class="lb-av">RM</div>
+          <div class="lb-name">Roshan Mendis</div><div style="flex:1"></div>
+          <div class="lb-pts">510</div>
+        </div>
+        <div class="lb-row">
+          <div class="lb-rank">7</div><div class="lb-av">KP</div>
+          <div class="lb-name">Kavindi Perera</div><div style="flex:1"></div>
+          <div class="lb-pts">430</div>
+        </div>
+        <div class="lb-row me">
+          <div class="lb-rank" style="color:var(--g-mid);">14</div>
+          <div class="lb-av" style="background:rgba(30,155,107,.2);color:var(--g-mid);font-weight:700;">You</div>
+          <div class="lb-name" style="color:var(--g-mid);">You — this month</div><div style="flex:1"></div>
+          <div class="lb-pts">240</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- POINTS -->
+<section class="sec pts-sec">
+  <div class="wrap">
+    <div class="sec-kicker"><span class="chip chip-g">EcoPoints</span></div>
+    <h2 class="sec-title">How you earn points</h2>
+    <p class="sec-sub">Every eco-friendly action is rewarded. Share, sell, recycle, or simply show up daily.</p>
+    <div class="pts-grid">
+      <div class="pt-card"><div class="pt-icon">📤</div><div class="pt-num">+50 pts</div><div class="pt-lbl">List a free item</div></div>
+      <div class="pt-card"><div class="pt-icon">💰</div><div class="pt-num">+30 pts</div><div class="pt-lbl">Sell an item</div></div>
+      <div class="pt-card"><div class="pt-icon">✅</div><div class="pt-num">+20 pts</div><div class="pt-lbl">Item claimed or sold</div></div>
+      <div class="pt-card"><div class="pt-icon">♻️</div><div class="pt-num">+15 pts</div><div class="pt-lbl">Send item to recycler</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- POST AD -->
+<section class="sec post-sec" id="post">
+  <div class="wrap">
+    <div class="post-layout">
+      <div>
+        <span class="chip chip-g" style="margin-bottom:18px;display:inline-flex;">Post a listing</span>
+        <h2 class="post-side-title">Your cupboard's clutter is someone's treasure</h2>
+        <p class="post-side-desc">List anything — furniture, clothes, appliances, books. If no one claims it, one of our recycling partners will collect it properly. Nothing goes to waste.</p>
+        <div class="pts-earn-list">
+          <div class="pel-row"><span class="pel-act">List a free item</span><span class="pel-val">+50 pts</span></div>
+          <div class="pel-row"><span class="pel-act">Sell an item</span><span class="pel-val">+30 pts</span></div>
+          <div class="pel-row"><span class="pel-act">Item gets claimed</span><span class="pel-val">+20 pts</span></div>
+          <div class="pel-row"><span class="pel-act">Send to recycler</span><span class="pel-val">+15 pts</span></div>
+          <div class="pel-row"><span class="pel-act">List 5 free items</span><span class="pel-val">🌿 Green Hero</span></div>
+        </div>
+        <div class="progress-box">
+          <div class="pb-title">♻️ Your eco progress</div>
+          <div class="pb-desc">You've listed 4 items this month, earning <strong>240 pts</strong>. One more free listing unlocks <strong>Green Hero</strong>!</div>
+          <div class="pb-bar-wrap"><div class="pb-bar"></div></div>
+          <div class="pb-lbl">4 / 5 items listed</div>
+        </div>
+      </div>
+
+      <div class="form-box">
+        <div class="form-title">New listing</div>
+        <div class="fg">
+          <label class="fl">Item name</label>
+          <input class="fi" type="text" placeholder="e.g. Wooden Chair, iPhone 8, Baby Crib…">
+        </div>
+        <div class="fg">
+          <label class="fl">Category</label>
+          <select class="fsel">
+            <option value="">Select category…</option>
+            <option>Furniture</option>
+            <option>Electronics</option>
+            <option>Clothing & Accessories</option>
+            <option>Kitchen & Appliances</option>
+            <option>Tools & Hardware</option>
+            <option>Books & Toys</option>
+            <option>Baby & Kids Items</option>
+            <option>Sports & Leisure</option>
+            <option>Other Household</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">Condition & description</label>
+          <textarea class="fta" placeholder="Describe condition, what's included, any damage or faults…"></textarea>
+        </div>
+        <div class="fg">
+          <label class="fl">Listing type</label>
+          <div class="price-tog">
+            <div class="ptog sf" id="pt-free" onclick="ptToggle('free')">🆓 Free to take</div>
+            <div class="ptog" id="pt-paid" onclick="ptToggle('paid')">💰 Sell it</div>
+            <div class="ptog" id="pt-recycle" onclick="ptToggle('recycle')">♻️ For recycling</div>
+          </div>
+        </div>
+        <div id="price-fg" style="display:none;" class="fg">
+          <label class="fl">Asking price (LKR)</label>
+          <input class="fi" type="number" placeholder="0">
+        </div>
+        <!--
+        <div id="recycler-fg" style="display:none;" class="fg">
+          <label class="fl">Preferred recycling partner</label>
+          <select class="fsel">
+            <option value="">Auto-match by category</option>
+            <option>E-Cycle Lanka (electronics)</option>
+            <option>GreenCollect SL (general / furniture)</option>
+            <option>FabricLoop Foundation (clothing)</option>
+            <option>PaperCycle Colombo (books / paper)</option>
+          </select>
+        </div> -->
+        <div class="fg">
+          <label class="fl">Location</label>
+          <input class="fi" type="text" placeholder="City or area (e.g. Colombo 07, Kandy)">
+        </div>
+        <div class="upload-z" onclick="document.getElementById('fu').click()">
+          <input type="file" id="fu" multiple accept="image/*" style="display:none">
+          <div class="uz-icon">📷</div>
+          <div class="uz-txt">Click to upload photos</div>
+          <div class="uz-sub">Up to 5 images · JPG, PNG, WEBP</div>
+        </div>
+        <button class="submit-btn">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="white" stroke-width="2"><path d="M7.5 2v11M2 7.5l5.5-5.5 5.5 5.5"/></svg>
+          Publish listing & earn points
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-sec">
+  <div class="cta-glow"></div>
+  <div class="wrap">
+    <div class="cta-inner">
+      <h2 class="cta-title">Ready to close the loop?</h2>
+      <p class="cta-desc">Join 4,200+ members turning household clutter into community value — and responsibly recycling what's left.</p>
+      <div class="cta-btns">
+        <a href="#post" class="btn btn-g btn-lg">Start listing free →</a>
+        <a href="#browse" class="btn btn-wh btn-lg">Browse items first</a>
+      </div>
+      <div class="cta-nums">
+        <div class="cn-item"><div class="cn-num">0 LKR</div><div class="cn-lbl">to register</div></div>
+        <div class="cn-item"><div class="cn-num">2 min</div><div class="cn-lbl">to post a listing</div></div>
+        <div class="cn-item"><div class="cn-num">12+</div><div class="cn-lbl">recycling partners</div></div>
+        <div class="cn-item"><div class="cn-num">+50 pts</div><div class="cn-lbl">for your first free item</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-inner">
+      <div>
+        <div class="foot-logo">
+          <div class="logo-mark" style="width:28px;height:28px;border-radius:7px 2px 7px 2px;">
+            <svg width="14" height="14" viewBox="0 0 17 17" fill="none"><path d="M2.5 14.5C2.5 6,14.5 2.5,14.5 2.5C14.5 2.5,11 14.5,2.5 14.5Z" fill="white"/></svg>
+          </div>
+          <span style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:#fff;">EcoLoop</span>
+        </div>
+        <p class="foot-desc">Sri Lanka's community platform for sharing, selling, and recycling household items. University of Kelaniya Final Year Project.</p>
+        <div class="foot-eco">♻️ Certified Eco Friendly Platform</div>
+      </div>
+      <div>
+        <div class="foot-col-h">Explore</div>
+        <ul class="foot-links">
+          <li><a href="#browse">Browse listings</a></li>
+          <li><a href="#post">Post an ad</a></li>
+          <li><a href="#recyclers">Recycling partners</a></li>
+          <li><a href="#leaderboard">Top Fans</a></li>
+          <li><a href="#how">How it works</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="foot-col-h">Categories</div>
+        <ul class="foot-links">
+          <li><a href="#">Furniture</a></li>
+          <li><a href="#">Electronics</a></li>
+          <li><a href="#">Clothing</a></li>
+          <li><a href="#">Kitchen</a></li>
+          <li><a href="#">Tools</a></li>
+          <li><a href="#">Books & Toys</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="foot-col-h">Project</div>
+        <ul class="foot-links">
+          <li><a href="#">About EcoLoop</a></li>
+          <li><a href="#">Our mission</a></li>
+          <li><a href="#">Recycling partners</a></li>
+          <li><a href="#">Safety guidelines</a></li>
+          <li><a href="#">Privacy policy</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bot">
+      <div class="foot-bot-txt">© 2026 EcoLoop · University of Kelaniya · Faculty of Computing & Technology · Made with 🌿 in Sri Lanka</div>
+      <div class="foot-socials">
+        <a href="#">Facebook</a>
+        <a href="#">Instagram</a>
+        <a href="#">WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+function toggleMenu(){document.getElementById('mobMenu').classList.toggle('open')}
+
+function ptToggle(type){
+  ['free','paid','recycle'].forEach(t=>{
+    document.getElementById('pt-'+t).className='ptog'+(t===type?' s'+t[0]:'');
+  });
+  document.getElementById('price-fg').style.display=type==='paid'?'block':'none';
+  document.getElementById('recycler-fg').style.display=type==='recycle'?'block':'none';
+}
+// fix class names
+document.getElementById('pt-free').className='ptog sf';
+
+function fcat(btn,cat){
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.lcard').forEach(c=>{
+    c.style.display=(cat==='all'||c.dataset.cat===cat)?'block':'none';
+  });
+}
+
+function fsearch(inp){
+  const q=inp.value.toLowerCase();
+  document.querySelectorAll('.lcard').forEach(c=>{
+    const t=c.querySelector('.lcard-title').textContent.toLowerCase();
+    const m=c.querySelector('.lcard-meta').textContent.toLowerCase();
+    c.style.display=(t.includes(q)||m.includes(q))?'block':'none';
+  });
+}
+
+// Heart save toggle
+document.querySelectorAll('.lcard-save').forEach(btn=>{
+  btn.addEventListener('click',e=>{
+    e.stopPropagation();
+    btn.textContent=btn.dataset.saved?'🤍':'❤️';
+    btn.dataset.saved=btn.dataset.saved?'':'1';
+  });
+});
+
+// Navbar scroll
+window.addEventListener('scroll',()=>{
+  document.querySelector('.nav').style.background=
+    window.scrollY>20?'rgba(248,247,243,.98)':'rgba(248,247,243,.9)';
+});
+
+// Scroll reveal
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting)e.target.style.animation='fadeUp .55s ease both';
+  });
+},{threshold:.12});
+document.querySelectorAll('.lcard,.step,.pt-card,.badge-card,.partner-card').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
