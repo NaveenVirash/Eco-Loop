@@ -46,7 +46,9 @@ export const userAPI = {
   getOne: (id) =>
     axios.get(`/api/users/${id}`, getAuthHeaders()),
   delete: (id) =>
-    axios.delete(`/api/users/${id}`, getAuthHeaders())
+    axios.delete(`/api/users/${id}`, getAuthHeaders()),
+  updateStatus: (id, status) =>
+    axios.put(`/api/users/${id}/status`, { status }, getAuthHeaders())
 };
 
 // Add existing and export them as APIs

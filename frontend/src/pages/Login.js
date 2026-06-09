@@ -61,9 +61,14 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="auth-footer">
-          Don't have an account? <Link to="/register">Register here</Link>
-        </p>
+        <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <Link to="/register-company" className="btn-out" style={{ textAlign: 'center', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: 'var(--g)', border: '1px solid var(--g)' }}>
+            Register Recycling Partner (Company)
+          </Link>
+          <p className="auth-footer" style={{ marginTop: '10px' }}>
+            Don't have an account? <Link to="/register">Register here</Link>
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -35,13 +35,15 @@ export const AuthProvider = ({ children }) => {
     verifyToken();
   }, [token]);
 
-  const register = async (name, email, password, role = 'user') => {
+  const register = async (name, email, password, role = 'user', phone = '', address = '') => {
     try {
       const response = await axios.post('/api/auth/register', {
         name,
         email,
         password,
-        role
+        role,
+        phone,
+        address
       });
       const newToken = response.data.token;
       setToken(newToken);

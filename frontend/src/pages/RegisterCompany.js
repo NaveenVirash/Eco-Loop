@@ -3,11 +3,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import './Auth.css';
 
-export default function Register() {
+export default function RegisterCompany() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('user');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ export default function Register() {
     setError('');
     setLoading(true);
 
-    const result = await register(name, email, password, role);
+    const result = await register(name, email, password, 'company', phone, address);
     if (result.success) {
       navigate('/dashboard');
     } else {
@@ -29,21 +30,21 @@ export default function Register() {
 
   return (
     <div className="auth-container">
-      <div className="auth-card">
-        <h1>Join EcoLoop</h1>
-        <p className="auth-subtitle">Create your account to get started</p>
+      <div className="auth-card" style={{ maxWidth: '500px' }}>
+        <h1>Company Registration</h1>
+        <p className="auth-subtitle">Become a Recycling Partner on EcoLoop</p>
         
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Full Name</label>
+            <label>Company Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              placeholder="John Doe"
+              placeholder="e.g., GreenRecycle Ltd."
             />
           </div>
 
@@ -54,7 +55,29 @@ export default function Register() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="your@email.com"
+              placeholder="contact@company.com"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Phone Number</label>
+            <input
+              type="text"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+              placeholder="e.g., +94 11 234 5678"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Physical Address</label>
+            <textarea
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              required
+              placeholder="Full address of the recycling facility"
+              rows="3"
             />
           </div>
 
@@ -69,10 +92,8 @@ export default function Register() {
             />
           </div>
 
-
-
           <button type="submit" className="btn-submit" disabled={loading}>
-            {loading ? 'Creating Account...' : 'Register'}
+            {loading ? 'Registering...' : 'Register Company'}
           </button>
         </form>
 

@@ -10,6 +10,7 @@ import PostAd from './pages/PostAd';
 import Leaderboard from './pages/Leaderboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import RegisterCompany from './pages/RegisterCompany';
 import UserDashboard from './pages/UserDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import './styles/GlobalStyles.css';
@@ -39,6 +40,7 @@ function App() {
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/register-company" element={<RegisterCompany />} />
           <Route 
             path="/dashboard" 
             element={

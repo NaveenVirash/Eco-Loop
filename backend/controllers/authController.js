@@ -19,14 +19,16 @@ const sendTokenResponse = (user, statusCode, res) => {
 // @access  Public
 exports.register = async (req, res, next) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role, phone, address } = req.body;
 
         // Create user
         const user = await User.create({
             name,
             email,
             password,
-            role
+            role,
+            phone,
+            address
         });
 
         sendTokenResponse(user, 200, res);
@@ -52,6 +54,11 @@ exports.login = async (req, res, next) => {
 
         if (!user) {
             return res.status(401).json({ success: false, error: 'Invalid credentials' });
+        }
+
+        // Check if user is suspended
+        if (user.status === 'suspended') {
+            return res.status(403).json({ success: false, error: 'Your account has been suspended by the admin.' });
         }
 
         // Check if password matches

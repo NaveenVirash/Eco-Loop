@@ -20,10 +20,21 @@ const UserSchema = new mongoose.Schema({
         minlength: 6,
         select: false
     },
+    phone: {
+        type: String
+    },
+    address: {
+        type: String
+    },
     role: {
         type: String,
-        enum: ['user', 'admin'],
+        enum: ['user', 'admin', 'company'],
         default: 'user'
+    },
+    status: {
+        type: String,
+        enum: ['active', 'suspended'],
+        default: 'active'
     },
     points: {
         type: Number,

@@ -24,6 +24,10 @@ exports.protect = async (req, res, next) => {
 
         req.user = await User.findById(decoded.id);
 
+        if (req.user && req.user.status === 'suspended') {
+            return res.status(403).json({ success: false, error: 'Your account is suspended' });
+        }
+
         next();
     } catch (err) {
         return res.status(401).json({ success: false, error: 'Not authorized to access this route' });

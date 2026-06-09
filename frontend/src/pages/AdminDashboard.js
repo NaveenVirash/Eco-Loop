@@ -29,6 +29,18 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleToggleStatus = async (id, currentStatus) => {
+    const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
+    if (window.confirm(`Are you sure you want to ${newStatus === 'suspended' ? 'suspend' : 'activate'} this account?`)) {
+      try {
+        await userAPI.updateStatus(id, newStatus);
+        setUsers(users.map(u => u._id === id ? { ...u, status: newStatus } : u));
+      } catch (err) {
+        setError(`Failed to update status`);
+      }
+    }
+  };
+
   const handleDeleteUser = async (id) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
@@ -39,6 +51,9 @@ export default function AdminDashboard() {
       }
     }
   };
+
+  const regularUsers = users.filter(u => u.role === 'user' || u.role === 'admin');
+  const companies = users.filter(u => u.role === 'company');
 
   const [editingProduct, setEditingProduct] = useState(null);
 
@@ -83,7 +98,13 @@ export default function AdminDashboard() {
           className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`}
           onClick={() => setActiveTab('users')}
         >
-          Users ({users.length})
+          Users ({regularUsers.length})
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'companies' ? 'active' : ''}`}
+          onClick={() => setActiveTab('companies')}
+        >
+          Companies ({companies.length})
         </button>
         <button 
           className={`tab-btn ${activeTab === 'products' ? 'active' : ''}`}
@@ -99,7 +120,7 @@ export default function AdminDashboard() {
         ) : activeTab === 'users' ? (
           <section className="admin-section">
             <h2>Users Management</h2>
-            {users.length === 0 ? (
+            {regularUsers.length === 0 ? (
               <p className="empty-state">No users found.</p>
             ) : (
               <div className="table-responsive">
@@ -109,12 +130,13 @@ export default function AdminDashboard() {
                       <th>Name</th>
                       <th>Email</th>
                       <th>Role</th>
+                      <th>Status</th>
                       <th>Joined</th>
                       <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {users.map(user => (
+                    {regularUsers.map(user => (
                       <tr key={user._id}>
                         <td>{user.name}</td>
                         <td>{user.email}</td>
@@ -123,11 +145,77 @@ export default function AdminDashboard() {
                             {user.role}
                           </span>
                         </td>
+                        <td>
+                          <span className={`role-badge role-${user.status === 'suspended' ? 'admin' : 'user'}`}>
+                            {user.status || 'active'}
+                          </span>
+                        </td>
                         <td>{new Date(user.createdAt).toLocaleDateString()}</td>
                         <td>
                           <button 
+                            className="btn-edit-sm"
+                            onClick={() => handleToggleStatus(user._id, user.status || 'active')}
+                            style={{ marginRight: '8px', background: user.status === 'suspended' ? '#4CAF50' : '#FF9800', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
+                          >
+                            {user.status === 'suspended' ? 'Activate' : 'Suspend'}
+                          </button>
+                          <button 
                             className="btn-delete-sm"
                             onClick={() => handleDeleteUser(user._id)}
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+        ) : activeTab === 'companies' ? (
+          <section className="admin-section">
+            <h2>Companies Management</h2>
+            {companies.length === 0 ? (
+              <p className="empty-state">No companies found.</p>
+            ) : (
+              <div className="table-responsive">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Company Name</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                      <th>Address</th>
+                      <th>Status</th>
+                      <th>Joined</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {companies.map(company => (
+                      <tr key={company._id}>
+                        <td>{company.name}</td>
+                        <td>{company.email}</td>
+                        <td>{company.phone || '-'}</td>
+                        <td>{company.address || '-'}</td>
+                        <td>
+                          <span className={`role-badge role-${company.status === 'suspended' ? 'admin' : 'user'}`}>
+                            {company.status || 'active'}
+                          </span>
+                        </td>
+                        <td>{new Date(company.createdAt).toLocaleDateString()}</td>
+                        <td>
+                          <button 
+                            className="btn-edit-sm"
+                            onClick={() => handleToggleStatus(company._id, company.status || 'active')}
+                            style={{ marginRight: '8px', background: company.status === 'suspended' ? '#4CAF50' : '#FF9800', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
+                          >
+                            {company.status === 'suspended' ? 'Activate' : 'Suspend'}
+                          </button>
+                          <button 
+                            className="btn-delete-sm"
+                            onClick={() => handleDeleteUser(company._id)}
                           >
                             Delete
                           </button>

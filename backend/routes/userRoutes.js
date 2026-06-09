@@ -1,5 +1,5 @@
 const express = require('express');
-const { getUsers, getUser, deleteUser } = require('../controllers/userController');
+const { getUsers, getUser, deleteUser, updateUserStatus } = require('../controllers/userController');
 const { protect, authorize } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
@@ -17,5 +17,8 @@ router.route('/')
 router.route('/:id')
     .get(getUser)
     .delete(deleteUser);
+
+router.route('/:id/status')
+    .put(updateUserStatus);
 
 module.exports = router;
