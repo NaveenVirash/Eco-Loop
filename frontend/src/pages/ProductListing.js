@@ -104,16 +104,20 @@ const ProductListing = () => {
                 className="lcard"
               >
                 <div className="lcard-img">
-                  <div
-                    className="ci"
-                    style={{
-                      background: ['#E8F5EF', '#E8F0FB', '#FBF0DA', '#FAECE5'][
-                        Math.floor(Math.random() * 4)
-                      ],
-                    }}
-                  >
-                    {product.icon || '📦'}
-                  </div>
+                  {product.imageUrl ? (
+                    <img src={`http://localhost:5000${product.imageUrl}`} alt={product.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <div
+                      className="ci"
+                      style={{
+                        background: ['#E8F5EF', '#E8F0FB', '#FBF0DA', '#FAECE5'][
+                          Math.floor(Math.random() * 4)
+                        ],
+                      }}
+                    >
+                      {product.icon || '📦'}
+                    </div>
+                  )}
                   <button
                     className="lcard-save"
                     onClick={(e) => {

@@ -52,6 +52,8 @@ export default function UserDashboard() {
     }
   };
 
+  const [editingProduct, setEditingProduct] = useState(null);
+
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
@@ -60,6 +62,22 @@ export default function UserDashboard() {
       } catch (err) {
         setError('Failed to delete product');
       }
+    }
+  };
+
+  const handleUpdateProduct = async (e) => {
+    e.preventDefault();
+    try {
+      await productAPI.update(editingProduct._id, {
+        title: editingProduct.title,
+        category: editingProduct.category,
+        description: editingProduct.description,
+        price: editingProduct.price,
+      });
+      fetchProducts();
+      setEditingProduct(null);
+    } catch (err) {
+      setError('Failed to update product');
     }
   };
 
@@ -80,72 +98,11 @@ export default function UserDashboard() {
             <h2>Upload New Product</h2>
             <button 
               className="btn-toggle"
-              onClick={() => setShowForm(!showForm)}
+              onClick={() => window.location.href = '/post'}
             >
-              {showForm ? 'Cancel' : '+ New Product'}
+              + Post Ad
             </button>
           </div>
-
-          {showForm && (
-            <form className="product-form" onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>Product Title</label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="e.g., Wooden Chair"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Description</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Describe the product condition and details"
-                  rows="4"
-                />
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Category</label>
-                  <select
-                    name="category"
-                    value={formData.category}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="">Select Category</option>
-                    <option value="Electronics">Electronics</option>
-                    <option value="Furniture">Furniture</option>
-                    <option value="Clothing">Clothing</option>
-                    <option value="Books">Books</option>
-                    <option value="Toys">Toys</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label>Price (Optional)</label>
-                  <input
-                    type="number"
-                    name="price"
-                    value={formData.price}
-                    onChange={handleInputChange}
-                    placeholder="0.00"
-                  />
-                </div>
-              </div>
-
-              <button type="submit" className="btn-submit">Upload Product</button>
-            </form>
-          )}
         </section>
 
         <section className="dashboard-section">
@@ -165,12 +122,21 @@ export default function UserDashboard() {
                   <p className="product-date">
                     Posted: {new Date(product.createdAt).toLocaleDateString()}
                   </p>
-                  <button 
-                    className="btn-delete"
-                    onClick={() => handleDelete(product._id)}
-                  >
-                    Delete
-                  </button>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                    <button 
+                      className="btn-edit-sm"
+                      onClick={() => setEditingProduct(product)}
+                      style={{ background: '#4CAF50', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      className="btn-delete"
+                      onClick={() => handleDelete(product._id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -203,6 +169,64 @@ export default function UserDashboard() {
           )}
         </section>
       </div>
+
+      {editingProduct && (
+        <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="modal-content" style={{ background: 'white', padding: '20px', borderRadius: '8px', width: '400px', maxWidth: '90%' }}>
+            <h2>Edit Product</h2>
+            <form onSubmit={handleUpdateProduct}>
+              <div className="form-group">
+                <label>Title</label>
+                <input 
+                  type="text" 
+                  value={editingProduct.title} 
+                  onChange={e => setEditingProduct({...editingProduct, title: e.target.value})}
+                  required
+                  style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
+                />
+              </div>
+              <div className="form-group">
+                <label>Category</label>
+                <select 
+                  value={editingProduct.category} 
+                  onChange={e => setEditingProduct({...editingProduct, category: e.target.value})}
+                  required
+                  style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
+                >
+                  <option value="furniture">Furniture</option>
+                  <option value="electronics">Electronics</option>
+                  <option value="clothing">Clothing</option>
+                  <option value="tools">Tools & Hardware</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Description</label>
+                <textarea 
+                  value={editingProduct.description} 
+                  onChange={e => setEditingProduct({...editingProduct, description: e.target.value})}
+                  required
+                  style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
+                />
+              </div>
+              <div className="form-group">
+                <label>Price</label>
+                <input 
+                  type="text" 
+                  value={editingProduct.price || ''} 
+                  onChange={e => setEditingProduct({...editingProduct, price: e.target.value})}
+                  style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <button type="submit" className="btn-submit" style={{ flex: 1, background: '#4CAF50', color: 'white', padding: '8px', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Update</button>
+                <button type="button" onClick={() => setEditingProduct(null)} style={{ flex: 1, background: '#f44336', color: 'white', padding: '8px', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

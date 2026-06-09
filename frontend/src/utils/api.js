@@ -28,6 +28,13 @@ export const productAPI = {
     config.headers['Content-Type'] = 'multipart/form-data';
     return axios.post('/api/products', data, config);
   },
+  update: (id, data) => {
+    const config = getAuthHeaders();
+    if (data instanceof FormData) {
+        config.headers['Content-Type'] = 'multipart/form-data';
+    }
+    return axios.put(`/api/products/${id}`, data, config);
+  },
   delete: (id) =>
     axios.delete(`/api/products/${id}`, getAuthHeaders())
 };

@@ -42,19 +42,19 @@ const NavbarNew = () => {
 
             <ul className="nav-links">
               <li>
-                <a href="#browse">Browse</a>
+                <Link to="/products">Browse</Link>
               </li>
               <li>
-                <a href="#how">How it works</a>
+                <Link to="/#how">How it works</Link>
               </li>
               <li>
-                <a href="#recyclers">Recycling Partners</a>
+                <Link to="/#recyclers">Recycling Partners</Link>
               </li>
               <li>
-                <a href="#leaderboard">Top Fans</a>
+                <Link to="/leaderboard">Top Fans</Link>
               </li>
               <li>
-                <a href="#post">Post Ad</a>
+                <Link to="/post">Post Ad</Link>
               </li>
             </ul>
 
@@ -100,21 +100,21 @@ const NavbarNew = () => {
       </nav>
 
       <div className={`mob-menu ${mobileMenuOpen ? 'open' : ''}`}>
-        <a href="#browse" onClick={toggleMenu}>
+        <Link to="/products" onClick={toggleMenu}>
           Browse Listings
-        </a>
-        <a href="#how" onClick={toggleMenu}>
+        </Link>
+        <Link to="/#how" onClick={toggleMenu}>
           How it works
-        </a>
-        <a href="#recyclers" onClick={toggleMenu}>
+        </Link>
+        <Link to="/#recyclers" onClick={toggleMenu}>
           Recycling Partners
-        </a>
-        <a href="#leaderboard" onClick={toggleMenu}>
+        </Link>
+        <Link to="/leaderboard" onClick={toggleMenu}>
           Top Fans
-        </a>
-        <a href="#post" onClick={toggleMenu}>
+        </Link>
+        <Link to="/post" onClick={toggleMenu}>
           Post an Ad
-        </a>
+        </Link>
         {!user ? (
           <Link
             to="/login"

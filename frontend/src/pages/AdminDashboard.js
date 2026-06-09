@@ -40,6 +40,8 @@ export default function AdminDashboard() {
     }
   };
 
+  const [editingProduct, setEditingProduct] = useState(null);
+
   const handleDeleteProduct = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
@@ -48,6 +50,22 @@ export default function AdminDashboard() {
       } catch (err) {
         setError('Failed to delete product');
       }
+    }
+  };
+
+  const handleUpdateProduct = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await productAPI.update(editingProduct._id, {
+        title: editingProduct.title,
+        category: editingProduct.category,
+        description: editingProduct.description,
+        price: editingProduct.price,
+      });
+      setProducts(products.map(p => p._id === editingProduct._id ? res.data.data : p));
+      setEditingProduct(null);
+    } catch (err) {
+      setError('Failed to update product');
     }
   };
 
@@ -157,6 +175,13 @@ export default function AdminDashboard() {
                           </td>
                           <td>
                             <button 
+                              className="btn-edit-sm"
+                              onClick={() => setEditingProduct(product)}
+                              style={{ marginRight: '8px', background: '#4CAF50', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                              Edit
+                            </button>
+                            <button 
                               className="btn-delete-sm"
                               onClick={() => handleDeleteProduct(product._id)}
                             >
@@ -173,6 +198,64 @@ export default function AdminDashboard() {
           </section>
         )}
       </div>
+
+      {editingProduct && (
+        <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="modal-content" style={{ background: 'white', padding: '20px', borderRadius: '8px', width: '400px', maxWidth: '90%' }}>
+            <h2>Edit Product</h2>
+            <form onSubmit={handleUpdateProduct}>
+              <div className="form-group">
+                <label>Title</label>
+                <input 
+                  type="text" 
+                  value={editingProduct.title} 
+                  onChange={e => setEditingProduct({...editingProduct, title: e.target.value})}
+                  required
+                  style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
+                />
+              </div>
+              <div className="form-group">
+                <label>Category</label>
+                <select 
+                  value={editingProduct.category} 
+                  onChange={e => setEditingProduct({...editingProduct, category: e.target.value})}
+                  required
+                  style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
+                >
+                  <option value="furniture">Furniture</option>
+                  <option value="electronics">Electronics</option>
+                  <option value="clothing">Clothing</option>
+                  <option value="tools">Tools & Hardware</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Description</label>
+                <textarea 
+                  value={editingProduct.description} 
+                  onChange={e => setEditingProduct({...editingProduct, description: e.target.value})}
+                  required
+                  style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
+                />
+              </div>
+              <div className="form-group">
+                <label>Price</label>
+                <input 
+                  type="text" 
+                  value={editingProduct.price || ''} 
+                  onChange={e => setEditingProduct({...editingProduct, price: e.target.value})}
+                  style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <button type="submit" className="btn-submit" style={{ flex: 1, background: '#4CAF50', color: 'white', padding: '8px', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Update</button>
+                <button type="button" onClick={() => setEditingProduct(null)} style={{ flex: 1, background: '#f44336', color: 'white', padding: '8px', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
