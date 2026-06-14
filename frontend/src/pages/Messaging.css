@@ -6,6 +6,19 @@
   margin-top: 20px;
 }
 
+.dashboard-container {
+  width: 100% !important;
+  max-width: 1200px; 
+  margin: 0 auto;    
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.dashboard-header {
+  margin-top: 3rem; 
+  margin-bottom: 20px; 
+}
+
 .partner-card {
   background: #F8F7F3;
   border: 1px solid #E8E6E0;
