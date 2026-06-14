@@ -13,6 +13,7 @@ import Register from './pages/Register';
 import RegisterCompany from './pages/RegisterCompany';
 import UserDashboard from './pages/UserDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import DashboardContainer from './pages/DashboardContainer';
 import './styles/GlobalStyles.css';
 import './App.css';
 import axios from 'axios';
@@ -44,8 +45,8 @@ function App() {
           <Route 
             path="/dashboard" 
             element={
-              <PrivateRoute requiredRole="user">
-                <UserDashboard />
+              <PrivateRoute>
+                <DashboardContainer />
               </PrivateRoute>
             } 
           />

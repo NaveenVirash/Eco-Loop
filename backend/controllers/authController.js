@@ -21,18 +21,32 @@ exports.register = async (req, res, next) => {
     try {
         const { name, email, password, role, phone, address } = req.body;
 
+        // Prevent self-assigning admin role from the public register endpoint
+        const allowedRoles = ['user', 'company'];
+        const assignedRole = allowedRoles.includes(role) ? role : 'user';
+
+        // Check if email already exists
+        const existingUser = await User.findOne({ email: email?.toLowerCase().trim() });
+        if (existingUser) {
+            return res.status(400).json({ success: false, error: 'An account with this email already exists. Please log in or use a different email.' });
+        }
+
         // Create user
         const user = await User.create({
             name,
             email,
             password,
-            role,
+            role: assignedRole,
             phone,
             address
         });
 
         sendTokenResponse(user, 200, res);
     } catch (err) {
+        // Handle MongoDB duplicate key error
+        if (err.code === 11000) {
+            return res.status(400).json({ success: false, error: 'An account with this email already exists. Please log in or use a different email.' });
+        }
         res.status(400).json({ success: false, error: err.message });
     }
 };
@@ -88,3 +102,29 @@ exports.getMe = async (req, res, next) => {
         res.status(400).json({ success: false, error: err.message });
     }
 };
+
+// @desc    Update user details
+// @route   PUT /api/auth/updatedetails
+// @access  Private
+exports.updateDetails = async (req, res, next) => {
+    try {
+        const fieldsToUpdate = {
+            name: req.body.name,
+            phone: req.body.phone,
+            address: req.body.address
+        };
+
+        const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
+            new: true,
+            runValidators: true
+        });
+
+        res.status(200).json({
+            success: true,
+            data: user
+        });
+    } catch (err) {
+        res.status(400).json({ success: false, error: err.message });
+    }
+};
+

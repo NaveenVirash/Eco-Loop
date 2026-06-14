@@ -146,7 +146,7 @@ export default function AdminDashboard() {
                           </span>
                         </td>
                         <td>
-                          <span className={`role-badge role-${user.status === 'suspended' ? 'admin' : 'user'}`}>
+                          <span className={`status-badge status-${user.status === 'suspended' ? 'suspended' : 'active'}`}>
                             {user.status || 'active'}
                           </span>
                         </td>
@@ -200,7 +200,7 @@ export default function AdminDashboard() {
                         <td>{company.phone || '-'}</td>
                         <td>{company.address || '-'}</td>
                         <td>
-                          <span className={`role-badge role-${company.status === 'suspended' ? 'admin' : 'user'}`}>
+                          <span className={`status-badge status-${company.status === 'suspended' ? 'suspended' : 'active'}`}>
                             {company.status || 'active'}
                           </span>
                         </td>

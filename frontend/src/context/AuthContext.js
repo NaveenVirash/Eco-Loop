@@ -97,8 +97,20 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
   };
 
+  const updateUserProfile = async (name, phone, address) => {
+    try {
+      const response = await axios.put('/api/auth/updatedetails', { name, phone, address }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUser(response.data.data);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.response?.data?.error || 'Failed to update profile' };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, register, login, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, register, login, logout, updateUserProfile }}>
       {children}
     </AuthContext.Provider>
   );

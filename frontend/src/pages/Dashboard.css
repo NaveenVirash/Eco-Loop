@@ -385,3 +385,150 @@
     padding: 10px;
   }
 }
+
+/* Profiles Layout */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 30px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profile-card-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.profile-avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1E9B6B, #136B49);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 10px rgba(30, 155, 107, 0.2);
+}
+
+.profile-avatar-container h3 {
+  font-size: 22px;
+  color: #1A1A18;
+  margin-bottom: 8px;
+}
+
+.profile-details-list {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid #E0DFD9;
+  padding-bottom: 10px;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #9A9A96;
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: 15px;
+  color: #1A1A18;
+  word-break: break-all;
+}
+
+/* Badges */
+.badge-topfan {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(45deg, #FAD961 0%, #F76B1C 100%);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 99px;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(247, 107, 28, 0.3);
+  animation: pulse-glow 2s infinite;
+}
+
+.badge-recycler {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #1E9B6B 0%, #10593c 100%);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 99px;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(30, 155, 107, 0.3);
+}
+
+@keyframes pulse-glow {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(247, 107, 28, 0.3);
+  }
+  50% {
+    transform: scale(1.03);
+    box-shadow: 0 4px 20px rgba(247, 107, 28, 0.6);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(247, 107, 28, 0.3);
+  }
+}
+
+/* Active vs Suspended styles for admin */
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-active {
+  background-color: #E8F5EF;
+  color: #1E9B6B;
+}
+
+.status-suspended {
+  background-color: #FAECE5;
+  color: #D45A2A;
+}
+

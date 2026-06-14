@@ -16,7 +16,9 @@ export const authAPI = {
   login: (email, password) =>
     axios.post('/api/auth/login', { email, password }),
   getMe: () =>
-    axios.get('/api/auth/me', getAuthHeaders())
+    axios.get('/api/auth/me', getAuthHeaders()),
+  updateDetails: (data) =>
+    axios.put('/api/auth/updatedetails', data, getAuthHeaders())
 };
 
 // Product API

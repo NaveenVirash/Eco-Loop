@@ -3,7 +3,7 @@ import { productAPI } from '../utils/api';
 import { AuthContext } from '../context/AuthContext';
 import './Dashboard.css';
 
-export default function UserDashboard() {
+export default function CompanyDashboard() {
   const { user, updateUserProfile } = useContext(AuthContext);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,12 +48,12 @@ export default function UserDashboard() {
   const [editingProduct, setEditingProduct] = useState(null);
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
+    if (window.confirm('Are you sure you want to delete this listing?')) {
       try {
         await productAPI.delete(id);
         fetchProducts();
       } catch (err) {
-        setError('Failed to delete product');
+        setError('Failed to delete listing');
       }
     }
   };
@@ -70,7 +70,7 @@ export default function UserDashboard() {
       fetchProducts();
       setEditingProduct(null);
     } catch (err) {
-      setError('Failed to update product');
+      setError('Failed to update listing');
     }
   };
 
@@ -82,12 +82,12 @@ export default function UserDashboard() {
     try {
       const res = await updateUserProfile(profileName, profilePhone, profileAddress);
       if (res.success) {
-        setProfileSuccess('Profile updated successfully!');
+        setProfileSuccess('Company profile updated successfully!');
       } else {
         setProfileError(res.error);
       }
     } catch (err) {
-      setProfileError('Failed to update profile');
+      setProfileError('Failed to update company profile');
     } finally {
       setProfileLoading(false);
     }
@@ -95,21 +95,16 @@ export default function UserDashboard() {
 
   const myProducts = products.filter(p => p.user && p.user._id === user?._id);
 
-  // Determine if user is a Top Fan
-  const isTopFan = user && user.points >= 100;
-
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
           <h1>Welcome, {user?.name}!</h1>
-          {isTopFan && (
-            <span className="badge-topfan">
-              🏆 Top Fan
-            </span>
-          )}
+          <span className="badge-recycler">
+            ♻️ Verified Partner
+          </span>
         </div>
-        <p>Manage your items, check rewards, and update your settings</p>
+        <p>Manage your recycling offers, browse listings, and update company details</p>
       </div>
 
       {error && <div className="error-banner">{error}</div>}
@@ -119,7 +114,7 @@ export default function UserDashboard() {
           className={`tab-btn ${activeTab === 'listings' ? 'active' : ''}`}
           onClick={() => setActiveTab('listings')}
         >
-          My Listings
+          Company Listings
         </button>
         <button 
           className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
@@ -129,7 +124,7 @@ export default function UserDashboard() {
             setProfileError('');
           }}
         >
-          My Profile
+          Company Profile
         </button>
       </div>
 
@@ -138,7 +133,7 @@ export default function UserDashboard() {
           <>
             <section className="dashboard-section">
               <div className="section-header">
-                <h2>Upload New Product</h2>
+                <h2>Upload New Offer/Ad</h2>
                 <button 
                   className="btn-toggle"
                   onClick={() => window.location.href = '/post'}
@@ -149,9 +144,9 @@ export default function UserDashboard() {
             </section>
 
             <section className="dashboard-section">
-              <h2>My Products ({myProducts.length})</h2>
+              <h2>My Company Listings ({myProducts.length})</h2>
               {myProducts.length === 0 ? (
-                <p className="empty-state">You haven't uploaded any products yet.</p>
+                <p className="empty-state">Your company hasn't uploaded any listings yet.</p>
               ) : (
                 <div className="products-grid">
                   {myProducts.map(product => (
@@ -215,45 +210,43 @@ export default function UserDashboard() {
         ) : (
           <div className="profile-grid">
             <section className="dashboard-section profile-card-left">
-              <h2>Profile Overview</h2>
+              <h2>Company Details</h2>
               <div className="profile-avatar-container">
-                <div className="profile-avatar">
-                  {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                <div className="profile-avatar" style={{ background: '#E8F5EF', color: '#1E9B6B' }}>
+                  🏢
                 </div>
                 <h3>{user?.name}</h3>
-                <span className="role-badge role-user">{user?.role}</span>
+                <span className="role-badge role-admin" style={{ background: '#E8F0FB', color: '#2A76D4' }}>Recycler</span>
               </div>
               
               <div className="profile-details-list">
                 <div className="detail-item">
-                  <span className="detail-label">Email Address</span>
+                  <span className="detail-label">Business Email</span>
                   <span className="detail-value">{user?.email}</span>
                 </div>
                 <div className="detail-item">
-                  <span className="detail-label">Points Earned</span>
-                  <span className="detail-value" style={{ color: '#1E9B6B', fontWeight: 'bold' }}>⭐ {user?.points || 0} pts</span>
+                  <span className="detail-label">Contact Phone</span>
+                  <span className="detail-value">{user?.phone || 'Not specified'}</span>
                 </div>
-                {isTopFan && (
-                  <div className="detail-item">
-                    <span className="detail-label">Top Fan Status</span>
-                    <span className="detail-value" style={{ color: '#C47B14', fontWeight: 'bold' }}>🏆 Verified Top Fan</span>
-                  </div>
-                )}
                 <div className="detail-item">
-                  <span className="detail-label">Member Since</span>
+                  <span className="detail-label">Facility Address</span>
+                  <span className="detail-value">{user?.address || 'Not specified'}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Partner Since</span>
                   <span className="detail-value">{user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</span>
                 </div>
               </div>
             </section>
 
             <section className="dashboard-section profile-edit-right">
-              <h2>Edit Profile Information</h2>
+              <h2>Edit Company Information</h2>
               {profileSuccess && <div className="success-banner" style={{ background: '#E8F5EF', color: '#1E9B6B', padding: '12px', borderRadius: '8px', marginBottom: '20px', borderLeft: '4px solid #1E9B6B' }}>{profileSuccess}</div>}
               {profileError && <div className="error-message" style={{ color: '#D45A2A', marginBottom: '20px' }}>{profileError}</div>}
               
               <form onSubmit={handleProfileUpdate} className="profile-form">
                 <div className="form-group">
-                  <label>Full Name</label>
+                  <label>Company Name</label>
                   <input 
                     type="text" 
                     value={profileName} 
@@ -262,20 +255,20 @@ export default function UserDashboard() {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Phone Number</label>
+                  <label>Contact Phone</label>
                   <input 
                     type="text" 
                     value={profilePhone} 
                     onChange={e => setProfilePhone(e.target.value)} 
-                    placeholder="e.g. +94 77 123 4567"
+                    placeholder="e.g. +94 11 234 5678"
                   />
                 </div>
                 <div className="form-group">
-                  <label>Address</label>
+                  <label>Facility Address</label>
                   <textarea 
                     value={profileAddress} 
                     onChange={e => setProfileAddress(e.target.value)} 
-                    placeholder="Enter your home address"
+                    placeholder="Full facility location"
                     rows="3"
                   />
                 </div>
@@ -291,7 +284,7 @@ export default function UserDashboard() {
       {editingProduct && (
         <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div className="modal-content" style={{ background: 'white', padding: '20px', borderRadius: '8px', width: '400px', maxWidth: '90%' }}>
-            <h2>Edit Product</h2>
+            <h2>Edit Product Listing</h2>
             <form onSubmit={handleUpdateProduct}>
               <div className="form-group">
                 <label>Title</label>
