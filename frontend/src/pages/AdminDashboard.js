@@ -254,7 +254,7 @@ export default function AdminDashboard() {
                         <tr key={product._id}>
                           <td>{product.title}</td>
                           <td>{product.category}</td>
-                          <td>{product.user.name}</td>
+                          <td>{product.user?.name || 'Unknown User'}</td>
                           <td>{createdDate.toLocaleDateString()}</td>
                           <td>
                             <span className={`days-left ${daysLeft < 7 ? 'warning' : ''}`}>
