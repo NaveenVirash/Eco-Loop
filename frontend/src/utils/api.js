@@ -53,9 +53,33 @@ export const userAPI = {
     axios.put(`/api/users/${id}/status`, { status }, getAuthHeaders())
 };
 
+// Message API
+export const messageAPI = {
+  getPartners: () =>
+    axios.get('/api/messages/partners', getAuthHeaders()),
+  getMessages: (partnerId) => {
+    let url = '/api/messages';
+    if (partnerId) {
+      url += `?partnerId=${partnerId}`;
+    }
+    return axios.get(url, getAuthHeaders());
+  },
+  getConversation: (partnerId) =>
+    axios.get(`/api/messages/conversation/${partnerId}`, getAuthHeaders()),
+  getConversationList: () =>
+    axios.get('/api/messages/conversations/list', getAuthHeaders()),
+  sendMessage: (receiverId, subject, body) =>
+    axios.post('/api/messages', { receiverId, subject, body }, getAuthHeaders()),
+  markAsRead: (messageId) =>
+    axios.put(`/api/messages/${messageId}/read`, {}, getAuthHeaders()),
+  getUnreadCount: () =>
+    axios.get('/api/messages/unread/count', getAuthHeaders())
+};
+
 // Add existing and export them as APIs
 export const API = {
     auth: authAPI,
     product: productAPI,
-    user: userAPI
+    user: userAPI,
+    message: messageAPI
 };

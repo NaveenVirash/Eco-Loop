@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { productAPI } from '../utils/api';
 import { AuthContext } from '../context/AuthContext';
+import UserMessages from './UserMessages';
 import './Dashboard.css';
 
 export default function UserDashboard() {
@@ -122,6 +123,12 @@ export default function UserDashboard() {
           My Listings
         </button>
         <button 
+          className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
+          onClick={() => setActiveTab('messages')}
+        >
+          💬 Messages
+        </button>
+        <button 
           className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
           onClick={() => {
             setActiveTab('profile');
@@ -212,6 +219,8 @@ export default function UserDashboard() {
               )}
             </section>
           </>
+        ) : activeTab === 'messages' ? (
+          <UserMessages />
         ) : (
           <div className="profile-grid">
             <section className="dashboard-section profile-card-left">

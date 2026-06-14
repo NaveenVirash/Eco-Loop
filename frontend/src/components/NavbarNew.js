@@ -48,7 +48,7 @@ const NavbarNew = () => {
                 <Link to="/#how">How it works</Link>
               </li>
               <li>
-                <Link to="/#recyclers">Recycling Partners</Link>
+                <Link to="/recycling-partners">Recycling Partners</Link>
               </li>
               <li>
                 <Link to="/leaderboard">Top Fans</Link>
