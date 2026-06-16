@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { productAPI, userAPI } from '../utils/api';
+import { productAPI } from '../utils/api';
 import { AuthContext } from '../context/AuthContext';
 import UserMessages from './UserMessages';
 import './Dashboard.css';
@@ -7,7 +7,6 @@ import './Dashboard.css';
 export default function UserDashboard() {
   const { user, updateUserProfile } = useContext(AuthContext);
   const [products, setProducts] = useState([]);
-  const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -35,7 +34,6 @@ export default function UserDashboard() {
 
   useEffect(() => {
     fetchProducts();
-    fetchLeaderboard();
   }, []);
 
   const fetchProducts = async () => {
@@ -50,14 +48,7 @@ export default function UserDashboard() {
     }
   };
 
-  const fetchLeaderboard = async () => {
-    try {
-      const response = await userAPI.getLeaderboard();
-      setLeaderboard(response.data.data);
-    } catch (err) {
-      console.error('Failed to fetch leaderboard');
-    }
-  };
+
 
   const [editingProduct, setEditingProduct] = useState(null);
 
