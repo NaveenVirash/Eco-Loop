@@ -76,3 +76,23 @@ exports.updateUserStatus = async (req, res, next) => {
         res.status(400).json({ success: false, error: err.message });
     }
 };
+
+// @desc    Get public profile of a user (safe fields)
+// @route   GET /api/users/:id/profile
+// @access  Private (any authenticated user)
+exports.getUserProfile = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.id).select(
+            '_id name email role status points bio website phone address createdAt'
+        );
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+        res.status(200).json({
+            success: true,
+            data: user
+        });
+    } catch (err) {
+        res.status(400).json({ success: false, error: err.message });
+    }
+};

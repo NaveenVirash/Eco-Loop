@@ -111,7 +111,9 @@ exports.updateDetails = async (req, res, next) => {
         const fieldsToUpdate = {
             name: req.body.name,
             phone: req.body.phone,
-            address: req.body.address
+            address: req.body.address,
+            bio: req.body.bio,
+            website: req.body.website
         };
 
         const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {

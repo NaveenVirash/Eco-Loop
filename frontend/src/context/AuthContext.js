@@ -97,9 +97,9 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
   };
 
-  const updateUserProfile = async (name, phone, address) => {
+  const updateUserProfile = async (name, phone, address, bio = '', website = '') => {
     try {
-      const response = await axios.put('/api/auth/updatedetails', { name, phone, address }, {
+      const response = await axios.put('/api/auth/updatedetails', { name, phone, address, bio, website }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUser(response.data.data);

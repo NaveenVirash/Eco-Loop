@@ -9,7 +9,7 @@ export default function UserDashboard() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Tab control
   const [activeTab, setActiveTab] = useState('listings');
 
@@ -17,6 +17,7 @@ export default function UserDashboard() {
   const [profileName, setProfileName] = useState('');
   const [profilePhone, setProfilePhone] = useState('');
   const [profileAddress, setProfileAddress] = useState('');
+  const [profileBio, setProfileBio] = useState('');
   const [profileSuccess, setProfileSuccess] = useState('');
   const [profileError, setProfileError] = useState('');
   const [profileLoading, setProfileLoading] = useState(false);
@@ -27,6 +28,7 @@ export default function UserDashboard() {
       setProfileName(user.name || '');
       setProfilePhone(user.phone || '');
       setProfileAddress(user.address || '');
+      setProfileBio(user.bio || '');
     }
   }, [user]);
 
@@ -81,7 +83,7 @@ export default function UserDashboard() {
     setProfileError('');
     setProfileLoading(true);
     try {
-      const res = await updateUserProfile(profileName, profilePhone, profileAddress);
+      const res = await updateUserProfile(profileName, profilePhone, profileAddress, profileBio);
       if (res.success) {
         setProfileSuccess('Profile updated successfully!');
       } else {
@@ -95,9 +97,8 @@ export default function UserDashboard() {
   };
 
   const myProducts = products.filter(p => p.user && p.user._id === user?._id);
-
-  // Determine if user is a Top Fan
   const isTopFan = user && user.points >= 100;
+  const pointsProgress = Math.min(((user?.points || 0) / 100) * 100, 100);
 
   return (
     <div className="dashboard-container">
@@ -116,19 +117,19 @@ export default function UserDashboard() {
       {error && <div className="error-banner">{error}</div>}
 
       <div className="admin-tabs">
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'listings' ? 'active' : ''}`}
           onClick={() => setActiveTab('listings')}
         >
           My Listings
         </button>
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
           onClick={() => setActiveTab('messages')}
         >
           💬 Messages
         </button>
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
           onClick={() => {
             setActiveTab('profile');
@@ -146,7 +147,7 @@ export default function UserDashboard() {
             <section className="dashboard-section">
               <div className="section-header">
                 <h2>Upload New Product</h2>
-                <button 
+                <button
                   className="btn-toggle"
                   onClick={() => window.location.href = '/post'}
                 >
@@ -173,14 +174,14 @@ export default function UserDashboard() {
                         Posted: {new Date(product.createdAt).toLocaleDateString()}
                       </p>
                       <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-                        <button 
+                        <button
                           className="btn-edit-sm"
                           onClick={() => setEditingProduct(product)}
                           style={{ background: '#4CAF50', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
                         >
                           Edit
                         </button>
-                        <button 
+                        <button
                           className="btn-delete"
                           onClick={() => handleDelete(product._id)}
                         >
@@ -223,6 +224,7 @@ export default function UserDashboard() {
           <UserMessages />
         ) : (
           <div className="profile-grid">
+            {/* Profile Overview Card */}
             <section className="dashboard-section profile-card-left">
               <h2>Profile Overview</h2>
               <div className="profile-avatar-container">
@@ -230,61 +232,106 @@ export default function UserDashboard() {
                   {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                 </div>
                 <h3>{user?.name}</h3>
-                <span className="role-badge role-user">{user?.role}</span>
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '6px' }}>
+                  <span className="role-badge role-user">{user?.role}</span>
+                  <span className={`profile-status-badge ${user?.status === 'suspended' ? 'status-suspended' : 'status-active'}`}>
+                    {user?.status === 'suspended' ? '🔴 Suspended' : '🟢 Active'}
+                  </span>
+                </div>
               </div>
-              
+
+              {/* Bio preview */}
+              {user?.bio && (
+                <div className="profile-bio-preview">
+                  <p>"{user.bio}"</p>
+                </div>
+              )}
+
               <div className="profile-details-list">
                 <div className="detail-item">
                   <span className="detail-label">Email Address</span>
                   <span className="detail-value">{user?.email}</span>
                 </div>
                 <div className="detail-item">
-                  <span className="detail-label">Points Earned</span>
-                  <span className="detail-value" style={{ color: '#1E9B6B', fontWeight: 'bold' }}>⭐ {user?.points || 0} pts</span>
+                  <span className="detail-label">Phone</span>
+                  <span className="detail-value">{user?.phone || 'Not set'}</span>
                 </div>
-                {isTopFan && (
-                  <div className="detail-item">
-                    <span className="detail-label">Top Fan Status</span>
-                    <span className="detail-value" style={{ color: '#C47B14', fontWeight: 'bold' }}>🏆 Verified Top Fan</span>
-                  </div>
-                )}
+                <div className="detail-item">
+                  <span className="detail-label">Address</span>
+                  <span className="detail-value">{user?.address || 'Not set'}</span>
+                </div>
                 <div className="detail-item">
                   <span className="detail-label">Member Since</span>
                   <span className="detail-value">{user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</span>
                 </div>
               </div>
+
+              {/* Points & Top Fan Progress */}
+              <div className="points-section">
+                <div className="points-header">
+                  <span className="detail-label">⭐ Points Earned</span>
+                  <span className="points-value" style={{ color: '#1E9B6B', fontWeight: 'bold' }}>
+                    {user?.points || 0} / 100 pts
+                  </span>
+                </div>
+                <div className="points-progress-bar">
+                  <div
+                    className="points-progress-fill"
+                    style={{ width: `${pointsProgress}%` }}
+                  />
+                </div>
+                {isTopFan ? (
+                  <div className="topfan-earned">
+                    🏆 You've earned the <strong>Top Fan</strong> badge!
+                  </div>
+                ) : (
+                  <p className="points-hint">
+                    {100 - (user?.points || 0)} more pts to unlock 🏆 Top Fan badge
+                  </p>
+                )}
+              </div>
             </section>
 
+            {/* Edit Profile Form */}
             <section className="dashboard-section profile-edit-right">
               <h2>Edit Profile Information</h2>
               {profileSuccess && <div className="success-banner" style={{ background: '#E8F5EF', color: '#1E9B6B', padding: '12px', borderRadius: '8px', marginBottom: '20px', borderLeft: '4px solid #1E9B6B' }}>{profileSuccess}</div>}
               {profileError && <div className="error-message" style={{ color: '#D45A2A', marginBottom: '20px' }}>{profileError}</div>}
-              
+
               <form onSubmit={handleProfileUpdate} className="profile-form">
                 <div className="form-group">
                   <label>Full Name</label>
-                  <input 
-                    type="text" 
-                    value={profileName} 
-                    onChange={e => setProfileName(e.target.value)} 
-                    required 
+                  <input
+                    type="text"
+                    value={profileName}
+                    onChange={e => setProfileName(e.target.value)}
+                    required
                   />
                 </div>
                 <div className="form-group">
                   <label>Phone Number</label>
-                  <input 
-                    type="text" 
-                    value={profilePhone} 
-                    onChange={e => setProfilePhone(e.target.value)} 
+                  <input
+                    type="text"
+                    value={profilePhone}
+                    onChange={e => setProfilePhone(e.target.value)}
                     placeholder="e.g. +94 77 123 4567"
                   />
                 </div>
                 <div className="form-group">
                   <label>Address</label>
-                  <textarea 
-                    value={profileAddress} 
-                    onChange={e => setProfileAddress(e.target.value)} 
+                  <textarea
+                    value={profileAddress}
+                    onChange={e => setProfileAddress(e.target.value)}
                     placeholder="Enter your home address"
+                    rows="3"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>About Me <span style={{ color: '#888', fontWeight: 400, fontSize: '13px' }}>(optional)</span></label>
+                  <textarea
+                    value={profileBio}
+                    onChange={e => setProfileBio(e.target.value)}
+                    placeholder="Tell others a little about yourself..."
                     rows="3"
                   />
                 </div>
@@ -297,6 +344,7 @@ export default function UserDashboard() {
         )}
       </div>
 
+      {/* Edit Product Modal */}
       {editingProduct && (
         <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div className="modal-content" style={{ background: 'white', padding: '20px', borderRadius: '8px', width: '400px', maxWidth: '90%' }}>
@@ -304,9 +352,9 @@ export default function UserDashboard() {
             <form onSubmit={handleUpdateProduct}>
               <div className="form-group">
                 <label>Title</label>
-                <input 
-                  type="text" 
-                  value={editingProduct.title} 
+                <input
+                  type="text"
+                  value={editingProduct.title}
                   onChange={e => setEditingProduct({...editingProduct, title: e.target.value})}
                   required
                   style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
@@ -314,8 +362,8 @@ export default function UserDashboard() {
               </div>
               <div className="form-group">
                 <label>Category</label>
-                <select 
-                  value={editingProduct.category} 
+                <select
+                  value={editingProduct.category}
                   onChange={e => setEditingProduct({...editingProduct, category: e.target.value})}
                   required
                   style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
@@ -329,8 +377,8 @@ export default function UserDashboard() {
               </div>
               <div className="form-group">
                 <label>Description</label>
-                <textarea 
-                  value={editingProduct.description} 
+                <textarea
+                  value={editingProduct.description}
                   onChange={e => setEditingProduct({...editingProduct, description: e.target.value})}
                   required
                   style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
@@ -338,9 +386,9 @@ export default function UserDashboard() {
               </div>
               <div className="form-group">
                 <label>Price</label>
-                <input 
-                  type="text" 
-                  value={editingProduct.price || ''} 
+                <input
+                  type="text"
+                  value={editingProduct.price || ''}
                   onChange={e => setEditingProduct({...editingProduct, price: e.target.value})}
                   style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
                 />
@@ -353,7 +401,6 @@ export default function UserDashboard() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

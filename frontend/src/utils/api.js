@@ -47,6 +47,8 @@ export const userAPI = {
     axios.get('/api/users', getAuthHeaders()),
   getOne: (id) =>
     axios.get(`/api/users/${id}`, getAuthHeaders()),
+  getProfile: (id) =>
+    axios.get(`/api/users/${id}/profile`, getAuthHeaders()),
   delete: (id) =>
     axios.delete(`/api/users/${id}`, getAuthHeaders()),
   updateStatus: (id, status) =>
