@@ -249,7 +249,143 @@
 }
 
 @media (max-width: 768px) {
-  .form-box {
-    padding: 22px;
+}
+
+/* ── LISTING TYPE CARDS ───────────────── */
+.ltype-cards {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.ltype-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 2px solid var(--bdr);
+  border-radius: var(--r-md);
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ltype-card:hover {
+  border-color: var(--g-mid);
+}
+
+.ltype-card.selected {
+  border-color: var(--g);
+  background: var(--g-lt);
+}
+
+.ltc-icon {
+  font-size: 28px;
+}
+
+.ltc-info h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.ltc-info p {
+  font-size: 12px;
+  color: var(--ink2);
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .ltype-cards {
+    flex-direction: column;
   }
+}
+
+/* ── POINTS SUCCESS MODAL ─────────────── */
+.pts-success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+}
+
+.pts-success-modal {
+  background: #fff;
+  border-radius: var(--r-xl);
+  padding: 40px;
+  text-align: center;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  animation: modal-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes modal-pop {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.pts-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.pts-success-modal h2 {
+  font-size: 24px;
+  font-family: 'Fraunces', serif;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.pts-success-modal p {
+  color: var(--ink2);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.pts-earned-box {
+  background: var(--g-lt);
+  border: 2px dashed var(--g-mid);
+  border-radius: var(--r-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.pts-plus {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--g);
+  line-height: 1;
+}
+
+.pts-lbl {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--g-dk);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.pts-total-lbl {
+  font-size: 15px !important;
+  color: var(--ink) !important;
+  margin-bottom: 0 !important;
+}
+
+.pts-total-lbl strong {
+  color: var(--g);
+  font-weight: 800;
 }

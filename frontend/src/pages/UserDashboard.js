@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { productAPI } from '../utils/api';
+import { productAPI, userAPI } from '../utils/api';
 import { AuthContext } from '../context/AuthContext';
 import UserMessages from './UserMessages';
 import './Dashboard.css';
@@ -7,6 +7,7 @@ import './Dashboard.css';
 export default function UserDashboard() {
   const { user, updateUserProfile } = useContext(AuthContext);
   const [products, setProducts] = useState([]);
+  const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -34,6 +35,7 @@ export default function UserDashboard() {
 
   useEffect(() => {
     fetchProducts();
+    fetchLeaderboard();
   }, []);
 
   const fetchProducts = async () => {
@@ -45,6 +47,15 @@ export default function UserDashboard() {
       setError('Failed to fetch products');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchLeaderboard = async () => {
+    try {
+      const response = await userAPI.getLeaderboard();
+      setLeaderboard(response.data.data);
+    } catch (err) {
+      console.error('Failed to fetch leaderboard');
     }
   };
 
@@ -97,19 +108,47 @@ export default function UserDashboard() {
   };
 
   const myProducts = products.filter(p => p.user && p.user._id === user?._id);
-  const isTopFan = user && user.points >= 100;
-  const pointsProgress = Math.min(((user?.points || 0) / 100) * 100, 100);
+  const myMarketplaceCount = myProducts.filter(p => p.listingType !== 'recycling').length;
+  const myRecyclingCount = myProducts.filter(p => p.listingType === 'recycling').length;
+
+  const currentPoints = user?.points || 0;
+  
+  // Badge Logic
+  let badgeName = 'Eco Starter';
+  let badgeIcon = '🌱';
+  let nextBadge = 'Green Hero';
+  let nextThreshold = 25;
+  
+  if (currentPoints >= 150) {
+    badgeName = 'Eco Champion';
+    badgeIcon = '🌍';
+    nextBadge = null;
+    nextThreshold = 150;
+  } else if (currentPoints >= 75) {
+    badgeName = 'Top Fan';
+    badgeIcon = '🏆';
+    nextBadge = 'Eco Champion';
+    nextThreshold = 150;
+  } else if (currentPoints >= 25) {
+    badgeName = 'Green Hero';
+    badgeIcon = '🌿';
+    nextBadge = 'Top Fan';
+    nextThreshold = 75;
+  }
+  
+  const prevThreshold = nextThreshold === 25 ? 0 : (nextThreshold === 75 ? 25 : (nextThreshold === 150 ? 75 : 150));
+  const pointsInCurrentTier = currentPoints - prevThreshold;
+  const tierSize = nextThreshold - prevThreshold;
+  const pointsProgress = nextBadge ? Math.min((pointsInCurrentTier / tierSize) * 100, 100) : 100;
 
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
           <h1>Welcome, {user?.name}!</h1>
-          {isTopFan && (
-            <span className="badge-topfan">
-              🏆 Top Fan
-            </span>
-          )}
+          <span className="badge-tier-chip">
+            {badgeIcon} {badgeName}
+          </span>
         </div>
         <p>Manage your items, check rewards, and update your settings</p>
       </div>
@@ -129,6 +168,7 @@ export default function UserDashboard() {
         >
           💬 Messages
         </button>
+
         <button
           className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
           onClick={() => {
@@ -193,107 +233,113 @@ export default function UserDashboard() {
                 </div>
               )}
             </section>
-
-            <section className="dashboard-section">
-              <h2>All Available Products ({products.length})</h2>
-              {loading ? (
-                <p>Loading products...</p>
-              ) : products.length === 0 ? (
-                <p className="empty-state">No products available yet.</p>
-              ) : (
-                <div className="products-grid">
-                  {products.map(product => (
-                    <div key={product._id} className="product-card">
-                      <div className="product-header">
-                        <h3>{product.title}</h3>
-                        <span className="category-badge">{product.category}</span>
-                      </div>
-                      <p className="product-desc">{product.description}</p>
-                      {product.price && <p className="product-price">${product.price}</p>}
-                      <p className="product-date">
-                        Posted: {new Date(product.createdAt).toLocaleDateString()}
-                      </p>
-                      <p className="product-user">By: {product?.user?.name || 'Unknown User'}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
           </>
         ) : activeTab === 'messages' ? (
           <UserMessages />
         ) : (
           <div className="profile-grid">
             {/* Profile Overview Card */}
-            <section className="dashboard-section profile-card-left">
-              <h2>Profile Overview</h2>
-              <div className="profile-avatar-container">
-                <div className="profile-avatar">
-                  {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                </div>
-                <h3>{user?.name}</h3>
-                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '6px' }}>
-                  <span className="role-badge role-user">{user?.role}</span>
-                  <span className={`profile-status-badge ${user?.status === 'suspended' ? 'status-suspended' : 'status-active'}`}>
-                    {user?.status === 'suspended' ? '🔴 Suspended' : '🟢 Active'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Bio preview */}
-              {user?.bio && (
-                <div className="profile-bio-preview">
-                  <p>"{user.bio}"</p>
-                </div>
-              )}
-
-              <div className="profile-details-list">
-                <div className="detail-item">
-                  <span className="detail-label">Email Address</span>
-                  <span className="detail-value">{user?.email}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Phone</span>
-                  <span className="detail-value">{user?.phone || 'Not set'}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Address</span>
-                  <span className="detail-value">{user?.address || 'Not set'}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Member Since</span>
-                  <span className="detail-value">{user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</span>
-                </div>
-              </div>
-
-              {/* Points & Top Fan Progress */}
-              <div className="points-section">
-                <div className="points-header">
-                  <span className="detail-label">⭐ Points Earned</span>
-                  <span className="points-value" style={{ color: '#1E9B6B', fontWeight: 'bold' }}>
-                    {user?.points || 0} / 100 pts
-                  </span>
-                </div>
-                <div className="points-progress-bar">
-                  <div
-                    className="points-progress-fill"
-                    style={{ width: `${pointsProgress}%` }}
-                  />
-                </div>
-                {isTopFan ? (
-                  <div className="topfan-earned">
-                    🏆 You've earned the <strong>Top Fan</strong> badge!
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <section className="dashboard-section profile-card-left">
+                <h2>Profile Overview</h2>
+                <div className="profile-avatar-container">
+                  <div className="profile-avatar">
+                    {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                   </div>
-                ) : (
-                  <p className="points-hint">
-                    {100 - (user?.points || 0)} more pts to unlock 🏆 Top Fan badge
-                  </p>
+                  <h3>{user?.name}</h3>
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '6px' }}>
+                    <span className="badge-tier-chip">{badgeIcon} {badgeName}</span>
+                    <span className={`profile-status-badge ${user?.status === 'suspended' ? 'status-suspended' : 'status-active'}`}>
+                      {user?.status === 'suspended' ? '🔴 Suspended' : '🟢 Active'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Bio preview */}
+                {user?.bio && (
+                  <div className="profile-bio-preview">
+                    <p>"{user.bio}"</p>
+                  </div>
                 )}
-              </div>
-            </section>
+
+                <div className="profile-details-list">
+                  <div className="detail-item">
+                    <span className="detail-label">Email Address</span>
+                    <span className="detail-value">{user?.email}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Phone</span>
+                    <span className="detail-value">{user?.phone || 'Not set'}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Member Since</span>
+                    <span className="detail-value">{user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</span>
+                  </div>
+                  
+                  <div className="points-breakdown">
+                    <div className="pb-item">
+                      <span className="pb-icon">🛒</span>
+                      <div className="pb-info">
+                        <span className="pb-lbl">Marketplace Listings</span>
+                        <span className="pb-val">{myMarketplaceCount} items</span>
+                      </div>
+                    </div>
+                    <div className="pb-item">
+                      <span className="pb-icon">♻️</span>
+                      <div className="pb-info">
+                        <span className="pb-lbl">Recycling Donations</span>
+                        <span className="pb-val">{myRecyclingCount} items</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Points Progress */}
+                <div className="points-section">
+                  <div className="points-header">
+                    <span className="detail-label">⭐ Total Points</span>
+                    <span className="points-value" style={{ color: '#1E9B6B', fontWeight: 'bold' }}>
+                      {currentPoints} pts
+                    </span>
+                  </div>
+                  <div className="points-progress-bar">
+                    <div
+                      className="points-progress-fill"
+                      style={{ width: `${pointsProgress}%` }}
+                    />
+                  </div>
+                  {nextBadge ? (
+                    <p className="points-hint">
+                      {nextThreshold - currentPoints} more pts to unlock {nextBadge} badge
+                    </p>
+                  ) : (
+                    <div className="topfan-earned">
+                      🌍 You have reached the highest tier!
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {/* How Points Work Card */}
+              <section className="dashboard-section hpw-card">
+                <h3>ℹ️ How Points Work</h3>
+                <p>Earn points by contributing to the community and unlocking badges!</p>
+                <ul className="hpw-list">
+                  <li><strong>+5 pts</strong> for posting a marketplace listing</li>
+                  <li><strong>+20 pts</strong> for a direct recycling donation</li>
+                  <li><strong>+5 pts</strong> bonus for uploading an item photo</li>
+                </ul>
+                <div className="hpw-badges">
+                  <div className="hpw-badge"><span>🌱 Eco Starter</span> <small>0-24 pts</small></div>
+                  <div className="hpw-badge"><span>🌿 Green Hero</span> <small>25-74 pts</small></div>
+                  <div className="hpw-badge"><span>🏆 Top Fan</span> <small>75-149 pts</small></div>
+                  <div className="hpw-badge"><span>🌍 Eco Champion</span> <small>150+ pts</small></div>
+                </div>
+              </section>
+            </div>
 
             {/* Edit Profile Form */}
-            <section className="dashboard-section profile-edit-right">
+            <section className="dashboard-section profile-edit-right" style={{ height: 'fit-content' }}>
               <h2>Edit Profile Information</h2>
               {profileSuccess && <div className="success-banner" style={{ background: '#E8F5EF', color: '#1E9B6B', padding: '12px', borderRadius: '8px', marginBottom: '20px', borderLeft: '4px solid #1E9B6B' }}>{profileSuccess}</div>}
               {profileError && <div className="error-message" style={{ color: '#D45A2A', marginBottom: '20px' }}>{profileError}</div>}

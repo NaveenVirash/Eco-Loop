@@ -16,6 +16,24 @@ exports.getUsers = async (req, res, next) => {
     }
 };
 
+// @desc    Get top 10 users by points
+// @route   GET /api/users/leaderboard
+// @access  Public
+exports.getLeaderboard = async (req, res, next) => {
+    try {
+        const topUsers = await User.find({ role: 'user', status: 'active' })
+            .select('name points createdAt')
+            .sort({ points: -1 })
+            .limit(10);
+        res.status(200).json({
+            success: true,
+            data: topUsers
+        });
+    } catch (err) {
+        res.status(400).json({ success: false, error: err.message });
+    }
+};
+
 // @desc    Get single user
 // @route   GET /api/users/:id
 // @access  Private/Admin

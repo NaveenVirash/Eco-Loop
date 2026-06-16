@@ -36,6 +36,17 @@ const ProductSchema = new mongoose.Schema({
         required: true
     },
 
+    listingType: {
+        type: String,
+        enum: ['marketplace', 'recycling'],
+        default: 'marketplace'
+    },
+
+    pointsAwarded: {
+        type: Number,
+        default: 0
+    },
+
     isExpired: {
         type: Boolean,
         default: false

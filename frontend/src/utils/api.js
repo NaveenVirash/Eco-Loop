@@ -43,6 +43,8 @@ export const productAPI = {
 
 // User API (Admin only)
 export const userAPI = {
+  getLeaderboard: () =>
+    axios.get('/api/users/leaderboard'),
   getAll: () =>
     axios.get('/api/users', getAuthHeaders()),
   getOne: (id) =>

@@ -1,4 +1,6 @@
 const Product = require('../models/Product');
+const User = require('../models/User');
+const { calculatePoints } = require('./pointsHelper');
 
 // @desc    Get all active products
 // @route   GET /api/products
@@ -9,7 +11,7 @@ exports.getProducts = async (req, res, next) => {
             isExpired: false
         }).populate({
             path: 'user',
-            select: 'name email'
+            select: 'name email points'
         });
 
         res.status(200).json({
@@ -65,11 +67,31 @@ exports.createProduct = async (req, res, next) => {
             req.body.imageUrl = `/uploads/${req.file.filename}`;
         }
 
+        const hasImage = !!req.file;
+        const listingType = req.body.listingType || 'marketplace';
+        
+        // Only award points to regular users, not companies
+        let pointsEarned = 0;
+        let newTotal = 0;
+        if (req.user.role === 'user') {
+            pointsEarned = calculatePoints(hasImage, listingType);
+            req.body.pointsAwarded = pointsEarned;
+            
+            const updatedUser = await User.findByIdAndUpdate(
+                req.user.id,
+                { $inc: { points: pointsEarned } },
+                { new: true }
+            );
+            newTotal = updatedUser.points;
+        }
+
         const product = await Product.create(req.body);
 
         res.status(201).json({
             success: true,
-            data: product
+            data: product,
+            pointsEarned,
+            newTotal
         });
 
     } catch (err) {
