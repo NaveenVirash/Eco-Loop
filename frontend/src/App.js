@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'; // Touch to recompile import paths
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import NavbarNew from './components/NavbarNew';
