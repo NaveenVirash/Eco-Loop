@@ -1,4 +1,7 @@
 /* Recycling Partners List */
+
+
+
 .partners-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -7,10 +10,10 @@
 }
 
 .dashboard-container {
-  width: 100% !important;
+  width: 100%;
   max-width: 1200px; 
-  margin: 0 auto;    
-  padding: 0 20px;
+  margin: 0 auto;   
+  padding: 0 20px;   
   box-sizing: border-box;
 }
 

@@ -52,6 +52,7 @@ export default function RecyclingPartnersPage() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
+    
         <h1>♻️ Recycling Partners Directory</h1>
         <p>Connect with verified recycling companies and environmental partners</p>
       </div>
