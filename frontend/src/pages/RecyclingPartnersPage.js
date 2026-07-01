@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react'; // Touch to recompile
 import { messageAPI } from '../utils/api';
 import { AuthContext } from '../context/AuthContext';
 import MessagingChat from './MessagingChat';
