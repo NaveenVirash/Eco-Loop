@@ -8,10 +8,13 @@ import HomePage from './pages/HomePage';
 import ProductListing from './pages/ProductListing';
 import PostAd from './pages/PostAd';
 import Leaderboard from './pages/Leaderboard';
+import RecyclingPartnersPage from './pages/RecyclingPartnersPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import RegisterCompany from './pages/RegisterCompany';
 import UserDashboard from './pages/UserDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import DashboardContainer from './pages/DashboardContainer';
 import './styles/GlobalStyles.css';
 import './App.css';
 import axios from 'axios';
@@ -37,13 +40,15 @@ function App() {
           <Route path="/products" element={<ProductListing />} />
           <Route path="/post" element={<PostAd />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/recycling-partners" element={<RecyclingPartnersPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/register-company" element={<RegisterCompany />} />
           <Route 
             path="/dashboard" 
             element={
-              <PrivateRoute requiredRole="user">
-                <UserDashboard />
+              <PrivateRoute>
+                <DashboardContainer />
               </PrivateRoute>
             } 
           />

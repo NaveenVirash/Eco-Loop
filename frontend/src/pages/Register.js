@@ -69,13 +69,7 @@ export default function Register() {
             />
           </div>
 
-          <div className="form-group">
-            <label>Account Type</label>
-            <select value={role} onChange={(e) => setRole(e.target.value)}>
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
+
 
           <button type="submit" className="btn-submit" disabled={loading}>
             {loading ? 'Creating Account...' : 'Register'}

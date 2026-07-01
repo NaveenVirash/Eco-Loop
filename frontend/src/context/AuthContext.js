@@ -35,13 +35,15 @@ export const AuthProvider = ({ children }) => {
     verifyToken();
   }, [token]);
 
-  const register = async (name, email, password, role = 'user') => {
+  const register = async (name, email, password, role = 'user', phone = '', address = '') => {
     try {
       const response = await axios.post('/api/auth/register', {
         name,
         email,
         password,
-        role
+        role,
+        phone,
+        address
       });
       const newToken = response.data.token;
       setToken(newToken);
@@ -95,8 +97,33 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
   };
 
+  const updateUserProfile = async (name, phone, address, bio = '', website = '') => {
+    try {
+      const response = await axios.put('/api/auth/updatedetails', { name, phone, address, bio, website }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUser(response.data.data);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.response?.data?.error || 'Failed to update profile' };
+    }
+  };
+
+  const refreshUser = async () => {
+    if (token) {
+      try {
+        const response = await axios.get('/api/auth/me', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setUser(response.data.data);
+      } catch (error) {
+        console.log('Failed to refresh user data');
+      }
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, register, login, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, register, login, logout, updateUserProfile, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
