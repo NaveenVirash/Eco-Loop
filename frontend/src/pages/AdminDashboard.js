@@ -59,6 +59,18 @@ export default function AdminDashboard() {
 
   const regularUsers = users.filter(u => u.role === 'user' || u.role === 'admin');
   const companies = users.filter(u => u.role === 'company');
+  const suspendedUsers = users.filter(u => u.status === 'suspended');
+
+  const handleViewProfile = (userOrCompany) => {
+    setProfileModal(userOrCompany);
+  };
+
+  const getUserListingCount = (userId) => {
+    return products.filter(p => {
+      const pUserId = p.user?._id || p.user;
+      return pUserId === userId;
+    }).length;
+  };
 
   const [editingProduct, setEditingProduct] = useState(null);
 
