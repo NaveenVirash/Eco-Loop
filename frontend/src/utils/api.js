@@ -25,6 +25,10 @@ export const authAPI = {
 export const productAPI = {
   getAll: () =>
     axios.get('/api/products'),
+  getOne: (id) =>
+    axios.get(`/api/products/${id}`),
+  getExpired: () =>
+    axios.get('/api/products/expired', getAuthHeaders()),
   create: (data) => {
     const config = getAuthHeaders();
     config.headers['Content-Type'] = 'multipart/form-data';

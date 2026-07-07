@@ -15,6 +15,7 @@ import RegisterCompany from './pages/RegisterCompany';
 import UserDashboard from './pages/UserDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import DashboardContainer from './pages/DashboardContainer';
+import ProductDetail from './pages/ProductDetail';
 import './styles/GlobalStyles.css';
 import './App.css';
 import axios from 'axios';
@@ -38,6 +39,7 @@ function App() {
             } 
           />
           <Route path="/products" element={<ProductListing />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/post" element={<PostAd />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/recycling-partners" element={<RecyclingPartnersPage />} />

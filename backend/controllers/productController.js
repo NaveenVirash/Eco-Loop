@@ -253,3 +253,57 @@ exports.updateProduct = async (req, res, next) => {
         });
     }
 };
+
+// @desc    Get single product
+// @route   GET /api/products/:id
+// @access  Public
+exports.getProduct = async (req, res, next) => {
+    try {
+        const product = await Product.findById(req.params.id).populate({
+            path: 'user',
+            select: 'name email phone points role address status bio website'
+        });
+
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                error: 'Product not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: product
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            error: err.message
+        });
+    }
+};
+
+// @desc    Get all expired products for recycling companies
+// @route   GET /api/products/expired
+// @access  Private (Company/Admin)
+exports.getExpiredProducts = async (req, res, next) => {
+    try {
+        const products = await Product.find({
+            isExpired: true
+        }).populate({
+            path: 'user',
+            select: 'name email phone points address'
+        }).sort('-expiresAt');
+
+        res.status(200).json({
+            success: true,
+            count: products.length,
+            data: products
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            error: err.message
+        });
+    }
+};

@@ -1,0 +1,496 @@
+.pd-page-container {
+  padding: 40px 0 80px;
+  background: var(--sand);
+}
+
+.pd-breadcrumb {
+  font-size: 14px;
+  color: var(--ink2);
+  margin-bottom: 24px;
+}
+
+.pd-breadcrumb a {
+  color: var(--g);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.pd-breadcrumb a:hover {
+  color: var(--g-dk);
+}
+
+.pd-breadcrumb span {
+  color: var(--ink3);
+  font-weight: 500;
+}
+
+.pd-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .pd-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Card Styling */
+.pd-card {
+  background: var(--white);
+  border: 1px solid var(--bdr);
+  border-radius: var(--r-lg);
+  padding: 30px;
+  margin-bottom: 24px;
+  box-shadow: var(--sh-sm);
+}
+
+/* Loading/Error States */
+.pd-loading-container, .pd-error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+}
+
+.pd-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--g-lt);
+  border-top: 4px solid var(--g);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.pd-error-card {
+  background: var(--white);
+  border: 1.5px solid var(--coral);
+  border-radius: var(--r-lg);
+  padding: 40px;
+  max-width: 500px;
+}
+
+.pd-error-card h2 {
+  color: var(--coral);
+  margin-bottom: 12px;
+}
+
+.btn-back-home {
+  display: inline-block;
+  margin-top: 20px;
+  background: var(--g);
+  color: var(--white);
+  padding: 10px 24px;
+  border-radius: 99px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-back-home:hover {
+  background: var(--g-dk);
+}
+
+/* Left Column Styling */
+.pd-image-wrapper {
+  position: relative;
+  width: 100%;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--white);
+  border: 1px solid var(--bdr);
+  aspect-ratio: 16 / 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.pd-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pd-image-placeholder {
+  font-size: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pd-status-badge {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 6px 14px;
+  border-radius: 99px;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.pd-status-badge.active {
+  background: var(--g);
+}
+
+.pd-status-badge.expired {
+  background: var(--amber);
+}
+
+.pd-info-card h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: var(--ink);
+}
+
+.pd-details-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.pd-detail-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-detail-item .label {
+  font-size: 12px;
+  color: var(--ink2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.pd-detail-item .value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.pd-detail-item .value.capitalize {
+  text-transform: capitalize;
+}
+
+.pd-detail-item .value.highlight {
+  color: var(--g-dk);
+}
+
+.divider {
+  border: 0;
+  height: 1px;
+  background: var(--bdr);
+  margin: 24px 0;
+}
+
+.pd-info-card h3 {
+  font-size: 18px;
+  margin-bottom: 12px;
+  color: var(--ink);
+}
+
+.pd-description {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink2);
+  white-space: pre-wrap;
+}
+
+/* Duration Card Styling */
+.pd-duration-card h3 {
+  font-size: 18px;
+  margin-bottom: 16px;
+  color: var(--ink);
+}
+
+.pd-expired-notice {
+  background: var(--cor-lt);
+  border-left: 4px solid var(--coral);
+  padding: 16px;
+  border-radius: var(--r-md);
+}
+
+.notice-title {
+  font-weight: 700;
+  color: var(--coral);
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+
+.notice-desc {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.pd-active-duration {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pd-duration-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.time-remaining {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--g-dk);
+}
+
+.total-days {
+  font-size: 12px;
+  color: var(--ink2);
+}
+
+.pd-progress-track {
+  width: 100%;
+  height: 8px;
+  background: var(--sand2);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.pd-progress-bar {
+  height: 100%;
+  background: var(--g);
+  border-radius: 99px;
+  transition: width 0.3s;
+}
+
+.pd-duration-desc {
+  font-size: 13px;
+  color: var(--ink2);
+  line-height: 1.5;
+}
+
+.dates-info {
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--bdr);
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--ink2);
+}
+
+/* User Card Styling */
+.pd-user-card h3 {
+  font-size: 18px;
+  margin-bottom: 16px;
+  color: var(--ink);
+}
+
+.pd-user-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.pd-user-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--g-lt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  border: 1px solid var(--bdr);
+}
+
+.pd-user-title-group h4 {
+  font-size: 16px;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.pd-user-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.pd-user-badge.role-company {
+  background: var(--blu-lt);
+  color: var(--blue);
+}
+
+.pd-user-badge.role-user {
+  background: var(--g-lt);
+  color: var(--g-dk);
+}
+
+.pd-seller-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  background: var(--sand);
+  padding: 12px;
+  border-radius: var(--r-md);
+  margin-bottom: 20px;
+}
+
+.seller-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.seller-stat .stat-label {
+  font-size: 11px;
+  color: var(--ink2);
+  margin-bottom: 2px;
+}
+
+.seller-stat .stat-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.seller-stat .stat-value.text-g {
+  color: var(--g);
+}
+
+.pd-contact-info {
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contact-item {
+  display: flex;
+  justify-content: space-between;
+}
+
+.contact-item span {
+  color: var(--ink2);
+}
+
+/* Inquiry Card Styling */
+.pd-message-card h3 {
+  font-size: 18px;
+  margin-bottom: 16px;
+  color: var(--ink);
+}
+
+.pd-login-prompt, .pd-owner-notice {
+  text-align: center;
+  padding: 12px;
+}
+
+.pd-login-prompt p, .pd-owner-notice p {
+  font-size: 14px;
+  color: var(--ink2);
+  margin-bottom: 16px;
+}
+
+.btn-login-redirect, .btn-dashboard-redirect {
+  display: inline-block;
+  width: 100%;
+  background: var(--g);
+  color: var(--white);
+  text-align: center;
+  padding: 10px;
+  border-radius: var(--r-md);
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.btn-login-redirect:hover, .btn-dashboard-redirect:hover {
+  background: var(--g-dk);
+}
+
+.pd-msg-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pd-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pd-form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.pd-form-group input, .pd-form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--bdr);
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.pd-form-group input:focus, .pd-form-group textarea:focus {
+  border-color: var(--g);
+}
+
+.btn-send-message {
+  width: 100%;
+  background: var(--g);
+  color: var(--white);
+  border: none;
+  padding: 12px;
+  border-radius: var(--r-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-send-message:hover {
+  background: var(--g-dk);
+}
+
+.btn-send-message:disabled {
+  background: var(--ink3);
+  cursor: not-allowed;
+}
+
+.pd-banner {
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+}
+
+.pd-banner.success {
+  background: var(--g-lt);
+  color: var(--g-dk);
+  border-left: 3px solid var(--g);
+}
+
+.pd-banner.error {
+  background: var(--cor-lt);
+  color: var(--coral);
+  border-left: 3px solid var(--coral);
+}
