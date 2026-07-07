@@ -65,6 +65,8 @@ export const userAPI = {
 export const messageAPI = {
   getPartners: () =>
     axios.get('/api/messages/partners', getAuthHeaders()),
+  getChatPartners: () =>
+    axios.get('/api/messages/chat-partners', getAuthHeaders()),
   getMessages: (partnerId) => {
     let url = '/api/messages';
     if (partnerId) {

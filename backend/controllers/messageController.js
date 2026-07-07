@@ -1,5 +1,27 @@
+const mongoose = require('mongoose');
 const Message = require('../models/Message');
 const User = require('../models/User');
+
+// Get all chat-eligible users and companies
+exports.getChatPartners = async (req, res) => {
+    try {
+        const currentUserId = req.user._id;
+        const partners = await User.find({
+            _id: { $ne: currentUserId },
+            status: 'active'
+        }).select('_id name email role');
+        
+        res.status(200).json({
+            success: true,
+            data: partners
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch chat partners'
+        });
+    }
+};
 
 // Get all recycling partners (companies)
 exports.getRecyclingPartners = async (req, res) => {
@@ -19,6 +41,7 @@ exports.getRecyclingPartners = async (req, res) => {
 
 // Send a message
 exports.sendMessage = async (req, res) => {
+
     try {
         const { receiverId, subject, body } = req.body;
         const senderId = req.user._id;
@@ -213,8 +236,8 @@ exports.getConversationList = async (req, res) => {
             {
                 $match: {
                     $or: [
-                        { sender: mongoose.Types.ObjectId(userId) },
-                        { receiver: mongoose.Types.ObjectId(userId) }
+                        { sender: new mongoose.Types.ObjectId(userId) },
+                        { receiver: new mongoose.Types.ObjectId(userId) }
                     ]
                 }
             },
@@ -230,7 +253,7 @@ exports.getConversationList = async (req, res) => {
                             $cond: [
                                 {
                                     $and: [
-                                        { $eq: ['$receiver', mongoose.Types.ObjectId(userId)] },
+                                        { $eq: ['$receiver', new mongoose.Types.ObjectId(userId)] },
                                         { $eq: ['$isRead', false] }
                                     ]
                                 },
