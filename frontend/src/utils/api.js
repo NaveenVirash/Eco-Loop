@@ -30,9 +30,9 @@ export const productAPI = {
   getExpired: () =>
     axios.get('/api/products/expired', getAuthHeaders()),
   create: (data) => {
-    const config = getAuthHeaders();
-    config.headers['Content-Type'] = 'multipart/form-data';
-    return axios.post('/api/products', data, config);
+    // Do NOT manually set Content-Type for FormData — axios automatically sets
+    // 'multipart/form-data' with the correct boundary so multer can parse it.
+    return axios.post('/api/products', data, getAuthHeaders());
   },
   update: (id, data) => {
     const config = getAuthHeaders();

@@ -60,6 +60,23 @@ const PostAd = () => {
     setLoading(true);
     setError('');
 
+    // Front-end validation
+    if (!formData.category) {
+      setError('Please select a category.');
+      setLoading(false);
+      return;
+    }
+    if (!formData.location) {
+      setError('Please select a district / location.');
+      setLoading(false);
+      return;
+    }
+    if (formData.listingType === 'marketplace' && formData.priceType === 'paid' && !formData.price) {
+      setError('Please enter a price for paid listings.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = new FormData();
       data.append('listingType', formData.listingType);
@@ -76,17 +93,15 @@ const PostAd = () => {
 
       if (res.data.pointsEarned !== undefined) {
         if (refreshUser) await refreshUser();
-        
         setSuccessData({
           points: res.data.pointsEarned,
           total: res.data.newTotal
         });
       } else {
-        alert('Product posted successfully!');
         navigate('/products');
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Error posting product');
+      setError(err.response?.data?.error || 'Error posting product. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -268,16 +283,41 @@ const PostAd = () => {
                 )}
 
                 <div className="fg">
-                  <label className="fl">Location *</label>
-                  <input
-                    type="text"
+                  <label className="fl">District / Location *</label>
+                  <select
                     name="location"
-                    className="fi"
-                    placeholder="e.g., Colombo 07"
+                    className="fsel"
                     required
                     value={formData.location}
                     onChange={handleChange}
-                  />
+                  >
+                    <option value="">Select a district</option>
+                    <option value="Ampara">Ampara</option>
+                    <option value="Anuradhapura">Anuradhapura</option>
+                    <option value="Badulla">Badulla</option>
+                    <option value="Batticaloa">Batticaloa</option>
+                    <option value="Colombo">Colombo</option>
+                    <option value="Galle">Galle</option>
+                    <option value="Gampaha">Gampaha</option>
+                    <option value="Hambantota">Hambantota</option>
+                    <option value="Jaffna">Jaffna</option>
+                    <option value="Kalutara">Kalutara</option>
+                    <option value="Kandy">Kandy</option>
+                    <option value="Kegalle">Kegalle</option>
+                    <option value="Kilinochchi">Kilinochchi</option>
+                    <option value="Kurunegala">Kurunegala</option>
+                    <option value="Mannar">Mannar</option>
+                    <option value="Matale">Matale</option>
+                    <option value="Matara">Matara</option>
+                    <option value="Monaragala">Monaragala</option>
+                    <option value="Mullaitivu">Mullaitivu</option>
+                    <option value="Nuwara Eliya">Nuwara Eliya</option>
+                    <option value="Polonnaruwa">Polonnaruwa</option>
+                    <option value="Puttalam">Puttalam</option>
+                    <option value="Ratnapura">Ratnapura</option>
+                    <option value="Trincomalee">Trincomalee</option>
+                    <option value="Vavuniya">Vavuniya</option>
+                  </select>
                 </div>
 
                 <div className="fg">

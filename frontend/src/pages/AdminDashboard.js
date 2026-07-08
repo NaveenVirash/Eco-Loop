@@ -141,6 +141,12 @@ export default function AdminDashboard() {
         >
           👤 Users ({regularUsers.length})
         </button>
+        <button
+          className={`tab-btn ${activeTab === 'companies' ? 'active' : ''}`}
+          onClick={() => setActiveTab('companies')}
+        >
+          🏢 Companies ({companies.length})
+        </button>
         <button 
           className={`tab-btn ${activeTab === 'suspended' ? 'active' : ''}`}
           onClick={() => setActiveTab('suspended')}
