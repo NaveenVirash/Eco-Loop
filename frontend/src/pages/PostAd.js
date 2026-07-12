@@ -91,7 +91,7 @@ const PostAd = () => {
 
       const res = await API.product.create(data);
 
-      if (res.data.pointsEarned !== undefined) {
+      if (res.data.pointsEarned > 0) {
         if (refreshUser) await refreshUser();
         setSuccessData({
           points: res.data.pointsEarned,

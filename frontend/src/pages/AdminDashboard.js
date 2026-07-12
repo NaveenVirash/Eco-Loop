@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { userAPI, productAPI } from '../utils/api';
+import UserMessages from './UserMessages';
 import './Dashboard.css';
 
 export default function AdminDashboard() {
@@ -159,10 +160,18 @@ export default function AdminDashboard() {
         >
           📦 Products ({products.length})
         </button>
+        <button
+          className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
+          onClick={() => setActiveTab('messages')}
+        >
+          💬 Messages
+        </button>
       </div>
 
       <div className="admin-content">
-        {loading ? (
+        {activeTab === 'messages' ? (
+          <UserMessages />
+        ) : loading ? (
           <p>Loading data...</p>
         ) : activeTab === 'suspended' ? (
           <section className="admin-section">
