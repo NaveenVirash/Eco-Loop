@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {
     getRecyclingPartners,
+    getChatPartners,
     sendMessage,
     getMessages,
     getUnreadCount,
@@ -13,6 +14,9 @@ const { protect } = require('../middlewares/authMiddleware');
 
 // All routes require authentication
 router.use(protect);
+
+// Get chat eligible partners (all active users)
+router.get('/chat-partners', getChatPartners);
 
 // Get all recycling partners
 router.get('/partners', getRecyclingPartners);

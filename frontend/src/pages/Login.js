@@ -14,7 +14,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    // loading එක true කරන්නේ login process එක පටන් ගන්න කොටයි
+    // loading true -> login process 
     setLoading(true);
 
     const result = await login(email, password);
@@ -65,7 +65,7 @@ export default function Login() {
         <br />
         <div><p>Don't have an account? </p></div>
 
-        {/* Buttons layout එක මෙතනින් පිරිසිදුව හදලා තියෙනවා */}
+        {/* Buttons layout */}
         <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <Link to="/register" className="btn-out" style={{ textAlign: 'center', padding: '12px', borderRadius: '8px', textDecoration: 'none', color: 'var(--g)', border: '1px solid var(--g)' }}>
             Register here

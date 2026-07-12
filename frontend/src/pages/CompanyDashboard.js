@@ -23,6 +23,9 @@ export default function CompanyDashboard() {
   const [profileError, setProfileError] = useState('');
   const [profileLoading, setProfileLoading] = useState(false);
 
+  const [expiredProducts, setExpiredProducts] = useState([]);
+  const [expiredLoading, setExpiredLoading] = useState(false);
+
   // Sync profile form state when user changes
   useEffect(() => {
     if (user) {
@@ -36,6 +39,7 @@ export default function CompanyDashboard() {
 
   useEffect(() => {
     fetchProducts();
+    fetchExpiredProducts();
   }, []);
 
   const fetchProducts = async () => {
@@ -47,6 +51,18 @@ export default function CompanyDashboard() {
       setError('Failed to fetch products');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchExpiredProducts = async () => {
+    try {
+      setExpiredLoading(true);
+      const response = await productAPI.getExpired();
+      setExpiredProducts(response.data.data);
+    } catch (err) {
+      console.error('Failed to fetch expired products:', err);
+    } finally {
+      setExpiredLoading(false);
     }
   };
 
@@ -120,6 +136,12 @@ export default function CompanyDashboard() {
           onClick={() => setActiveTab('listings')}
         >
           Company Listings
+        </button>
+        <button
+          className={`tab-btn ${activeTab === 'recycling-expired' ? 'active' : ''}`}
+          onClick={() => setActiveTab('recycling-expired')}
+        >
+          ♻️ Recyclable Items
         </button>
         <button
           className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
@@ -218,8 +240,61 @@ export default function CompanyDashboard() {
               )}
             </section>
           </>
+        ) : activeTab === 'recycling-expired' ? (
+          <section className="dashboard-section">
+            <div className="section-header">
+              <h2>Expired Items for Recycling ({expiredProducts.length})</h2>
+              <button className="btn-toggle" onClick={fetchExpiredProducts}>
+                🔄 Refresh List
+              </button>
+            </div>
+            <p style={{ color: 'var(--ink2)', marginBottom: '20px' }}>
+              These items are over 30 days old, removed from public browsing, and automatically routed to you for recycling collection.
+            </p>
+            {expiredLoading ? (
+              <p>Loading recyclable items...</p>
+            ) : expiredProducts.length === 0 ? (
+              <p className="empty-state">No recyclable items available at this moment.</p>
+            ) : (
+              <div className="products-grid">
+                {expiredProducts.map(product => (
+                  <div key={product._id} className="product-card" style={{ borderLeft: '4px solid var(--amber)' }}>
+                    <div className="product-header">
+                      <h3>{product.title}</h3>
+                      <span className="category-badge">{product.category}</span>
+                    </div>
+                    <p className="product-desc">{product.description}</p>
+                    <p className="product-date">
+                      Expired on: {new Date(product.expiresAt).toLocaleDateString()}
+                    </p>
+                    <p className="product-user">
+                      Owner: {product?.user?.name || 'Unknown User'} ({product?.user?.email || 'No email'})
+                    </p>
+                    <div style={{ marginTop: '12px' }}>
+                      <a
+                        href={`/product/${product._id}`}
+                        style={{
+                          display: 'inline-block',
+                          background: 'var(--g)',
+                          color: 'white',
+                          padding: '6px 12px',
+                          borderRadius: '4px',
+                          textDecoration: 'none',
+                          fontSize: '13px',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        View Details & Contact
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
         ) : activeTab === 'messages' ? (
           <UserMessages />
+
         ) : (
           <div className="profile-grid">
             {/* Company Details Card */}
