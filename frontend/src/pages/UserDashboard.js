@@ -316,9 +316,9 @@ export default function UserDashboard() {
                 <h3>ℹ️ How Points Work</h3>
                 <p>Earn points by contributing to the community and unlocking badges!</p>
                 <ul className="hpw-list">
-                  <li><strong>+5 pts</strong> for posting a marketplace listing</li>
-                  <li><strong>+20 pts</strong> for a direct recycling donation</li>
-                  <li><strong>+5 pts</strong> bonus for uploading an item photo</li>
+                  <li><strong>+10 pts</strong> for marketplace donations (after pickup is confirmed by both parties)</li>
+                  <li><strong>+5 pts</strong> for contacting a Recycling Center (instant on post)</li>
+                  <li><strong>+5 pts</strong> to the Collector who collects your item</li>
                 </ul>
                 <div className="hpw-badges">
                   <div className="hpw-badge"><span>🌱 Eco Starter</span> <small>0-24 pts</small></div>

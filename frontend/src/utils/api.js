@@ -29,6 +29,9 @@ export const productAPI = {
     axios.get(`/api/products/${id}`),
   getExpired: () =>
     axios.get('/api/products/expired', getAuthHeaders()),
+  // All active recycling listings (for collectors / company dashboard)
+  getRecycling: () =>
+    axios.get('/api/products/recycling', getAuthHeaders()),
   create: (data) => {
     // Do NOT manually set Content-Type for FormData — axios automatically sets
     // 'multipart/form-data' with the correct boundary so multer can parse it.
@@ -42,7 +45,18 @@ export const productAPI = {
     return axios.put(`/api/products/${id}`, data, config);
   },
   delete: (id) =>
-    axios.delete(`/api/products/${id}`, getAuthHeaders())
+    axios.delete(`/api/products/${id}`, getAuthHeaders()),
+
+  // ── Dual-Confirmation workflow ─────────────────────────────────────────────
+  // Collector claims a listing (sets collectorConfirmed = true, status = pending_collection)
+  claimCollection: (id) =>
+    axios.put(`/api/products/${id}/claim`, {}, getAuthHeaders()),
+  // Collector re-confirms (idempotent)
+  confirmCollector: (id) =>
+    axios.put(`/api/products/${id}/confirm-collector`, {}, getAuthHeaders()),
+  // Donor confirms the collector picked up the item
+  confirmDonor: (id) =>
+    axios.put(`/api/products/${id}/confirm-donor`, {}, getAuthHeaders()),
 };
 
 // User API (Admin only)

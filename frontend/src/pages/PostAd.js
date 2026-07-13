@@ -91,14 +91,21 @@ const PostAd = () => {
 
       const res = await API.product.create(data);
 
+      // Recycling posts award 5 pts immediately
       if (res.data.pointsEarned > 0) {
         if (refreshUser) await refreshUser();
         setSuccessData({
           points: res.data.pointsEarned,
-          total: res.data.newTotal
+          total: res.data.newTotal,
+          isRecycling: formData.listingType === 'recycling'
         });
       } else {
-        navigate('/products');
+        // Marketplace posts — no instant points; they come via dual-confirm
+        setSuccessData({
+          points: 0,
+          total: user?.points || 0,
+          isMarketplace: true
+        });
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Error posting product. Please try again.');
@@ -123,20 +130,33 @@ const PostAd = () => {
               </p>
 
               <div className="pts-earn-list">
-                <div className="pel-row">
-                  <span className="pel-act">📝 Listing type ({formData.listingType === 'marketplace' ? 'Marketplace' : 'Recycling'})</span>
-                  <span className="pel-val">{formData.listingType === 'marketplace' ? '05 pts' : '20 pts'}</span>
-                </div>
-                <div className="pel-row">
-                  <span className="pel-act">📸 Upload item photo</span>
-                  <span className="pel-val">{formData.image ? '+05 pts' : '00 pts'}</span>
-                </div>
-                <div className="pel-row" style={{ background: '#E8F5EF', borderColor: '#1E9B6B' }}>
-                  <span className="pel-act" style={{ color: '#1E9B6B', fontWeight: 'bold' }}>Total Expected</span>
-                  <span className="pel-val" style={{ color: '#1E9B6B' }}>
-                    { (formData.listingType === 'marketplace' ? 5 : 20) + (formData.image ? 5 : 0) } pts
-                  </span>
-                </div>
+                {formData.listingType === 'recycling' ? (
+                  <>
+                    <div className="pel-row">
+                      <span className="pel-act">♻️ Contact Recycling Center</span>
+                      <span className="pel-val">+05 pts (instant)</span>
+                    </div>
+                    <div className="pel-row" style={{ background: '#E8F5EF', borderColor: '#1E9B6B' }}>
+                      <span className="pel-act" style={{ color: '#1E9B6B', fontWeight: 'bold' }}>Total on Post</span>
+                      <span className="pel-val" style={{ color: '#1E9B6B' }}>05 pts</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="pel-row">
+                      <span className="pel-act">🛒 Marketplace Listing</span>
+                      <span className="pel-val">posted</span>
+                    </div>
+                    <div className="pel-row">
+                      <span className="pel-act">🤝 After confirmed pickup</span>
+                      <span className="pel-val">+10 pts</span>
+                    </div>
+                    <div className="pel-row" style={{ background: '#E8F5EF', borderColor: '#1E9B6B' }}>
+                      <span className="pel-act" style={{ color: '#1E9B6B', fontWeight: 'bold' }}>Total on Completion</span>
+                      <span className="pel-val" style={{ color: '#1E9B6B' }}>10 pts</span>
+                    </div>
+                  </>
+                )}
               </div>
 
               {user?.role === 'user' && (
@@ -191,8 +211,8 @@ const PostAd = () => {
                     >
                       <div className="ltc-icon">♻️</div>
                       <div className="ltc-info">
-                        <h4>Recycling Donation</h4>
-                        <p>Send to a recycling partner</p>
+                        <h4>Contact Recycling Center</h4>
+                        <p>Sent directly to recycling partners (+5 pts)</p>
                       </div>
                     </div>
                   </div>
@@ -361,12 +381,20 @@ const PostAd = () => {
           <div className="pts-success-modal">
             <div className="pts-icon">🎉</div>
             <h2>Listing Posted!</h2>
-            <p>Thank you for contributing to the Eco-Loop community.</p>
-            <div className="pts-earned-box">
-              <span className="pts-plus">+{successData.points}</span>
-              <span className="pts-lbl">Points Earned</span>
-            </div>
-            <p className="pts-total-lbl">Your new total: <strong>{successData.total} pts</strong></p>
+            {successData.isRecycling ? (
+              <>
+                <p>Your item has been sent directly to recycling centers.</p>
+                <div className="pts-earned-box">
+                  <span className="pts-plus">+{successData.points}</span>
+                  <span className="pts-lbl">Points Earned</span>
+                </div>
+                <p className="pts-total-lbl">Your new total: <strong>{successData.total} pts</strong></p>
+              </>
+            ) : (
+              <>
+                <p>Your item is now live in the marketplace. You'll earn <strong>10 Eco-Points</strong> when a collector picks it up and both of you confirm.</p>
+              </>
+            )}
             <button className="btn btn-g btn-lg" style={{width: '100%', marginTop: '20px'}} onClick={() => navigate('/products')}>
               Continue to Products
             </button>
