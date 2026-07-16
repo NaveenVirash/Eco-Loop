@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { productAPI, messageAPI } from '../utils/api';
+import { productAPI, messageAPI, userAPI } from '../utils/api';
 import { AuthContext } from '../context/AuthContext';
 import './ProductDetail.css';
 
@@ -19,6 +19,16 @@ export default function ProductDetail() {
   const [messageSuccess, setMessageSuccess] = useState('');
   const [messageError, setMessageError] = useState('');
   const [messageLoading, setMessageLoading] = useState(false);
+  const [transactionLoading, setTransactionLoading] = useState(false);
+  const [transactionMessage, setTransactionMessage] = useState('');
+  const [transactionError, setTransactionError] = useState('');
+
+  // Rating State
+  const [ratingModal, setRatingModal] = useState(false);
+  const [ratingValue, setRatingValue] = useState(5);
+  const [ratingComment, setRatingComment] = useState('');
+  const [ratingError, setRatingError] = useState('');
+  const [ratingSuccess, setRatingSuccess] = useState('');
 
   useEffect(() => {
     fetchProduct();
@@ -68,6 +78,63 @@ export default function ProductDetail() {
       console.error(err);
     } finally {
       setMessageLoading(false);
+    }
+  };
+
+  const handleTransactionAction = async (action) => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    if (user._id === product.user?._id) {
+      setTransactionError('You cannot complete your own listing.');
+      return;
+    }
+
+    setTransactionLoading(true);
+    setTransactionError('');
+    setTransactionMessage('');
+
+    try {
+      let res;
+      if (action === 'claim') {
+        res = await productAPI.claimCollection(product._id);
+      } else if (action === 'collector') {
+        res = await productAPI.confirmCollector(product._id);
+      } else if (action === 'donor') {
+        res = await productAPI.confirmDonor(product._id);
+      }
+
+      setTransactionMessage(res.data.message || 'Transaction updated');
+      await fetchProduct();
+    } catch (err) {
+      setTransactionError(err.response?.data?.error || 'Failed to update transaction');
+    } finally {
+      setTransactionLoading(false);
+    }
+  };
+
+  const handleRateSubmit = async (e) => {
+    e.preventDefault();
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setRatingError('');
+    setRatingSuccess('');
+    try {
+      await userAPI.rateUser(product.user._id, { rating: ratingValue, comment: ratingComment });
+      setRatingSuccess('Rating submitted successfully!');
+      setTimeout(() => {
+        setRatingModal(false);
+        setRatingSuccess('');
+        setRatingValue(5);
+        setRatingComment('');
+        fetchProduct(); // Refresh to show updated rating
+      }, 1500);
+    } catch (err) {
+      setRatingError(err.response?.data?.error || 'Failed to submit rating');
     }
   };
 
@@ -235,6 +302,28 @@ export default function ProductDetail() {
                 </div>
               </div>
 
+              {product.user?.averageRating > 0 && (
+                <div style={{ textAlign: 'center', marginBottom: '15px' }}>
+                  <div style={{ fontSize: '18px', color: '#FFD700', marginBottom: '4px' }}>
+                    {'⭐'.repeat(Math.round(product.user.averageRating))} 
+                  </div>
+                  <span style={{ color: '#666', fontSize: '13px' }}>
+                    {product.user.averageRating.toFixed(1)}/5 ({product.user.ratingCount} reviews)
+                  </span>
+                </div>
+              )}
+
+              {user && user._id !== product.user?._id && (
+                <div style={{ textAlign: 'center', marginBottom: '15px' }}>
+                  <button 
+                    onClick={() => setRatingModal(true)}
+                    style={{ background: '#f0f0f0', border: '1px solid #ddd', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}
+                  >
+                    ⭐ Rate {product.user?.role === 'company' ? 'Company' : 'User'}
+                  </button>
+                </div>
+              )}
+
               <div className="pd-contact-info">
                 {product.user?.email && (
                   <div className="contact-item">
@@ -265,44 +354,135 @@ export default function ProductDetail() {
                   <Link to="/dashboard" className="btn-dashboard-redirect">Go to Dashboard</Link>
                 </div>
               ) : (
-                <form onSubmit={handleSendMessage} className="pd-msg-form">
-                  {messageSuccess && <div className="pd-banner success">{messageSuccess}</div>}
-                  {messageError && <div className="pd-banner error">{messageError}</div>}
+                <>
+                  {product.listingType === 'marketplace' && (
+                    <div style={{ marginBottom: '16px', padding: '12px', border: '1px solid #e6f4ea', borderRadius: '8px', background: '#f7fcf8' }}>
+                      <h4 style={{ margin: '0 0 6px', fontSize: '15px' }}>🤝 Dual Confirmation</h4>
+                      <p style={{ margin: '0 0 10px', fontSize: '13px', color: '#47624a' }}>
+                        Points are awarded only after both sides confirm the transaction.
+                      </p>
+                      {transactionMessage && <div className="pd-banner success">{transactionMessage}</div>}
+                      {transactionError && <div className="pd-banner error">{transactionError}</div>}
+                      {product.status === 'completed' ? (
+                        <p style={{ margin: 0, fontSize: '13px', color: '#1e9b6b' }}>✅ This transaction has already been completed.</p>
+                      ) : product.status === 'pending_collection' && product.collectedBy ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <p style={{ margin: 0, fontSize: '13px' }}>
+                            {product.collectedBy?._id === user._id || product.collectedBy === user._id
+                              ? 'You are the buyer for this item. Confirm once the handover is done.'
+                              : 'The buyer has claimed this item. Waiting for the donor to confirm.'}
+                          </p>
+                          {((product.collectedBy?._id === user._id) || (product.collectedBy === user._id)) && (
+                            <button
+                              type="button"
+                              className="btn-send-message"
+                              onClick={() => handleTransactionAction('collector')}
+                              disabled={transactionLoading}
+                            >
+                              {transactionLoading ? 'Saving...' : 'Confirm Pickup'}
+                            </button>
+                          )}
+                          {user._id === product.user?._id && (
+                            <button
+                              type="button"
+                              className="btn-send-message"
+                              onClick={() => handleTransactionAction('donor')}
+                              disabled={transactionLoading}
+                            >
+                              {transactionLoading ? 'Saving...' : 'Confirm Done'}
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn-send-message"
+                          onClick={() => handleTransactionAction('claim')}
+                          disabled={transactionLoading}
+                        >
+                          {transactionLoading ? 'Saving...' : 'Buy / Claim Item'}
+                        </button>
+                      )}
+                    </div>
+                  )}
 
-                  <div className="pd-form-group">
-                    <label>Subject</label>
-                    <input
-                      type="text"
-                      value={messageSubject}
-                      onChange={(e) => setMessageSubject(e.target.value)}
-                      required
-                    />
-                  </div>
+                  <form onSubmit={handleSendMessage} className="pd-msg-form">
+                    {messageSuccess && <div className="pd-banner success">{messageSuccess}</div>}
+                    {messageError && <div className="pd-banner error">{messageError}</div>}
 
-                  <div className="pd-form-group">
-                    <label>Your Message</label>
-                    <textarea
-                      placeholder="Ask the owner about pickup details, condition, availability..."
-                      value={messageBody}
-                      onChange={(e) => setMessageBody(e.target.value)}
-                      required
-                      rows="4"
-                    />
-                  </div>
+                    <div className="pd-form-group">
+                      <label>Subject</label>
+                      <input
+                        type="text"
+                        value={messageSubject}
+                        onChange={(e) => setMessageSubject(e.target.value)}
+                        required
+                      />
+                    </div>
 
-                  <button
-                    type="submit"
-                    className="btn-send-message"
-                    disabled={messageLoading}
-                  >
-                    {messageLoading ? 'Sending...' : 'Send Inquiry Message'}
-                  </button>
-                </form>
+                    <div className="pd-form-group">
+                      <label>Your Message</label>
+                      <textarea
+                        placeholder="Ask the owner about pickup details, condition, availability..."
+                        value={messageBody}
+                        onChange={(e) => setMessageBody(e.target.value)}
+                        required
+                        rows="4"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="btn-send-message"
+                      disabled={messageLoading}
+                    >
+                      {messageLoading ? 'Sending...' : 'Send Inquiry Message'}
+                    </button>
+                  </form>
+                </>
               )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Rating Modal */}
+      {ratingModal && (
+        <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
+          <div className="modal-content" style={{ background: '#fff', padding: '30px', borderRadius: '8px', maxWidth: '400px', width: '90%' }}>
+            <h2>Rate {product.user?.name}</h2>
+            {ratingError && <div className="pd-banner error" style={{ margin: '10px 0' }}>{ratingError}</div>}
+            {ratingSuccess && <div className="pd-banner success" style={{ margin: '10px 0' }}>{ratingSuccess}</div>}
+            <form onSubmit={handleRateSubmit}>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Rating (1-5)</label>
+                <select 
+                  value={ratingValue} 
+                  onChange={(e) => setRatingValue(Number(e.target.value))}
+                  style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                >
+                  {[5, 4, 3, 2, 1].map(num => (
+                    <option key={num} value={num}>{num} Stars</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Comment (Optional)</label>
+                <textarea 
+                  value={ratingComment} 
+                  onChange={(e) => setRatingComment(e.target.value)}
+                  style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd', minHeight: '80px' }}
+                  placeholder="Leave a comment about this user..."
+                />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button type="button" onClick={() => setRatingModal(false)} style={{ padding: '8px 16px', background: '#f0f0f0', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Cancel</button>
+                <button type="submit" style={{ padding: '8px 16px', background: '#1E9B6B', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Submit Rating</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

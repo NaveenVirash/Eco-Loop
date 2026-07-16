@@ -25,6 +25,8 @@ export const authAPI = {
 export const productAPI = {
   getAll: () =>
     axios.get('/api/products'),
+  getMyProducts: () =>
+    axios.get('/api/products/my-products', getAuthHeaders()),
   getOne: (id) =>
     axios.get(`/api/products/${id}`),
   getExpired: () =>
@@ -72,7 +74,9 @@ export const userAPI = {
   delete: (id) =>
     axios.delete(`/api/users/${id}`, getAuthHeaders()),
   updateStatus: (id, status) =>
-    axios.put(`/api/users/${id}/status`, { status }, getAuthHeaders())
+    axios.put(`/api/users/${id}/status`, { status }, getAuthHeaders()),
+  rateUser: (id, ratingData) =>
+    axios.post(`/api/users/${id}/rate`, ratingData, getAuthHeaders())
 };
 
 // Message API

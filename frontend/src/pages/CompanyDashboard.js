@@ -29,6 +29,7 @@ export default function CompanyDashboard() {
   // Recycling center posts ("Contact Recycling Center" listings)
   const [recyclingProducts, setRecyclingProducts] = useState([]);
   const [recyclingLoading, setRecyclingLoading] = useState(false);
+  const [confirmingId, setConfirmingId] = useState(null);
 
   // Sync profile form state when user changes
   useEffect(() => {
@@ -95,6 +96,21 @@ export default function CompanyDashboard() {
       }
     } catch (err) {
       alert(err.response?.data?.error || 'Failed to claim collection');
+    }
+  };
+
+  const handleConfirmCollector = async (productId) => {
+    if (!window.confirm('Confirm that you completed the pickup?')) return;
+    try {
+      setConfirmingId(productId);
+      const res = await productAPI.confirmCollector(productId);
+      alert(res.data.message || 'Collector confirmation saved');
+      fetchRecyclingListings();
+      fetchExpiredProducts();
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to confirm pickup');
+    } finally {
+      setConfirmingId(null);
     }
   };
 
@@ -328,9 +344,27 @@ export default function CompanyDashboard() {
                             ✅ Completed
                           </span>
                         ) : isPending && isClaimedByMe ? (
-                          <span style={{ display: 'inline-block', background: '#FBF0DA', color: '#C88A15', padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold' }}>
-                            🟡 Awaiting Donor Confirmation
-                          </span>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <span style={{ display: 'inline-block', background: '#FBF0DA', color: '#C88A15', padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold' }}>
+                              🟡 Awaiting Donor Confirmation
+                            </span>
+                            <button
+                              onClick={() => handleConfirmCollector(product._id)}
+                              disabled={confirmingId === product._id}
+                              style={{
+                                background: '#2A76D4',
+                                color: 'white',
+                                border: 'none',
+                                padding: '8px 16px',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontWeight: 'bold',
+                                fontSize: '13px'
+                              }}
+                            >
+                              {confirmingId === product._id ? 'Saving...' : 'Confirm Pickup'}
+                            </button>
+                          </div>
                         ) : isPending && !isClaimedByMe ? (
                           <span style={{ display: 'inline-block', background: '#F0F0F0', color: '#888', padding: '6px 14px', borderRadius: '20px', fontSize: '13px' }}>
                             Claimed by another collector

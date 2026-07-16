@@ -54,7 +54,7 @@ const awardPointsAndBadge = async (userId, pointsToAdd) => {
     const updated = await User.findByIdAndUpdate(
         userId,
         { $inc: { points: pointsToAdd } },
-        { new: true }
+        { returnDocument: 'after' }
     );
 
     if (!updated) {

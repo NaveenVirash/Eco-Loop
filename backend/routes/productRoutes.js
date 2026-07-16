@@ -1,6 +1,7 @@
 const express = require('express');
 const {
     getProducts,
+    getMyProducts,
     createProduct,
     deleteProduct,
     updateProduct,
@@ -21,6 +22,8 @@ router.route('/')
     .get(getProducts)
     .post(protect, upload.single('image'), createProduct);
 
+router.get('/my-products', protect, getMyProducts);
+
 // ─── Company / Admin only ─────────────────────────────────────────────────────
 
 // All active+pending recycling listings (for collectors to browse)
@@ -33,14 +36,14 @@ router.route('/expired')
 
 // ─── Dual-Confirmation workflow ───────────────────────────────────────────────
 
-// Collector claims a listing for collection and sets collectorConfirmed = true
-router.put('/:id/claim', protect, authorize('company', 'admin'), claimCollection);
+// Collector or buyer claims a listing and sets collectorConfirmed = true
+router.put('/:id/claim', protect, claimCollection);
 
-// Collector re-confirms (idempotent)
-router.put('/:id/confirm-collector', protect, authorize('company', 'admin'), confirmCollection);
+// Collector or buyer re-confirms (idempotent)
+router.put('/:id/confirm-collector', protect, confirmCollection);
 
-// Donor confirms the collector picked it up
-router.put('/:id/confirm-donor', protect, authorize('user', 'admin'), confirmDonor);
+// Donor confirms the collector/buyer picked it up
+router.put('/:id/confirm-donor', protect, confirmDonor);
 
 // ─── Standard CRUD ────────────────────────────────────────────────────────────
 router.route('/:id')

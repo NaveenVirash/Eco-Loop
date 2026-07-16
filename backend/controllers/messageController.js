@@ -26,7 +26,7 @@ exports.getChatPartners = async (req, res) => {
 // Get all recycling partners (companies)
 exports.getRecyclingPartners = async (req, res) => {
     try {
-        const partners = await User.find({ role: 'company' }).select('_id name email phone address');
+        const partners = await User.find({ role: 'company' }).select('_id name email phone address averageRating ratingCount');
         res.status(200).json({
             success: true,
             data: partners
@@ -164,7 +164,7 @@ exports.markAsRead = async (req, res) => {
                 isRead: true,
                 readAt: new Date()
             },
-            { new: true }
+            { returnDocument: 'after' }
         ).populate('sender', 'name email').populate('receiver', 'name email');
 
         if (!message) {

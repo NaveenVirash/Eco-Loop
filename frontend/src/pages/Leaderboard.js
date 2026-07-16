@@ -61,6 +61,11 @@ const Leaderboard = () => {
                     <div className="lb-avatar">{u.name.charAt(0).toUpperCase()}</div>
                     <div className="lb-name">
                       {u.name} {user && u._id === user._id && <span className="lb-me-badge">You</span>}
+                      {u.averageRating > 0 && (
+                        <div style={{ fontSize: '12px', color: '#FFD700', marginTop: '2px' }}>
+                          {'⭐'.repeat(Math.round(u.averageRating))} <span style={{ color: '#888' }}>({u.averageRating.toFixed(1)})</span>
+                        </div>
+                      )}
                     </div>
                     <div className="lb-points">
                       {u.points} pts

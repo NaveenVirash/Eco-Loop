@@ -250,7 +250,7 @@ exports.updateProduct = async (req, res, next) => {
         }
 
         product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
+            returnDocument: 'after',
             runValidators: true
         });
 
@@ -275,7 +275,7 @@ exports.getProduct = async (req, res, next) => {
         const product = await Product.findById(req.params.id)
             .populate({
                 path: 'user',
-                select: 'name email phone points role address status bio website'
+                select: 'name email phone points role address status bio website averageRating ratingCount'
             })
             .populate({
                 path: 'collectedBy',
@@ -391,7 +391,7 @@ async function _tryComplete(product) {
                 completedAt: new Date()
             }
         },
-        { new: true }
+        { returnDocument: 'after' }
     );
 
     if (!claimed) {
@@ -422,12 +422,18 @@ exports.claimCollection = async (req, res, next) => {
             return res.status(404).json({ success: false, error: 'Product not found' });
         }
 
-        if (product.listingType !== 'recycling') {
-            return res.status(400).json({ success: false, error: 'Only recycling listings can be claimed for collection' });
-        }
-
         if (product.status === 'completed') {
             return res.status(400).json({ success: false, error: 'This listing has already been completed' });
+        }
+
+        if (product.user.toString() === req.user.id) {
+            return res.status(400).json({ success: false, error: 'You cannot claim your own listing' });
+        }
+
+        if (product.listingType === 'recycling') {
+            if (req.user.role !== 'company' && req.user.role !== 'admin') {
+                return res.status(403).json({ success: false, error: 'Only recycling companies can claim recycling listings' });
+            }
         }
 
         if (product.collectedBy && product.collectedBy.toString() !== req.user.id) {
@@ -448,8 +454,10 @@ exports.claimCollection = async (req, res, next) => {
         res.status(200).json({
             success: true,
             message: completionResult.completed
-                ? 'Collection confirmed and points awarded!'
-                : 'Collection claimed. Waiting for donor to confirm pickup.',
+                ? 'Transaction confirmed and points awarded!'
+                : product.listingType === 'recycling'
+                    ? 'Collection claimed. Waiting for donor to confirm pickup.'
+                    : 'Purchase claimed. Waiting for the donor to confirm completion.',
             data: product,
             completionResult
         });

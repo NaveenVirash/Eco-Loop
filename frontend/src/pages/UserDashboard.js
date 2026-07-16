@@ -5,10 +5,11 @@ import UserMessages from './UserMessages';
 import './Dashboard.css';
 
 export default function UserDashboard() {
-  const { user, updateUserProfile } = useContext(AuthContext);
+  const { user, loading: authLoading, updateUserProfile } = useContext(AuthContext);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [confirmingId, setConfirmingId] = useState(null);
 
   // Tab control
   const [activeTab, setActiveTab] = useState('listings');
@@ -33,18 +34,35 @@ export default function UserDashboard() {
   }, [user]);
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    if (!authLoading && user) {
+      fetchProducts();
+    }
+  }, [authLoading, user]);
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await productAPI.getAll();
+      setError('');
+      const response = await productAPI.getMyProducts();
       setProducts(response.data.data);
     } catch (err) {
-      setError('Failed to fetch products');
+      setError(err.response?.data?.error || 'Failed to fetch your listings');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleConfirmPickup = async (productId) => {
+    if (!window.confirm('Confirm that the collector picked up your item?')) return;
+    try {
+      setConfirmingId(productId);
+      const res = await productAPI.confirmDonor(productId);
+      alert(res.data.message || 'Pickup confirmation saved');
+      fetchProducts();
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to confirm pickup');
+    } finally {
+      setConfirmingId(null);
     }
   };
 
@@ -98,7 +116,7 @@ export default function UserDashboard() {
     }
   };
 
-  const myProducts = products.filter(p => p.user && p.user._id === user?._id);
+  const myProducts = products || [];
   const myMarketplaceCount = myProducts.filter(p => p.listingType !== 'recycling').length;
   const myRecyclingCount = myProducts.filter(p => p.listingType === 'recycling').length;
 
@@ -193,34 +211,57 @@ export default function UserDashboard() {
                 <p className="empty-state">You haven't uploaded any products yet.</p>
               ) : (
                 <div className="products-grid">
-                  {myProducts.map(product => (
-                    <div key={product._id} className="product-card">
-                      <div className="product-header">
-                        <h3>{product.title}</h3>
-                        <span className="category-badge">{product.category}</span>
+                  {myProducts.map(product => {
+                    const isPending = product.status === 'pending_collection';
+                    const isCompleted = product.status === 'completed';
+                    return (
+                      <div key={product._id} className="product-card">
+                        <div className="product-header">
+                          <h3>{product.title}</h3>
+                          <span className="category-badge">{product.category}</span>
+                        </div>
+                        <p className="product-desc">{product.description}</p>
+                        {product.price && <p className="product-price">${product.price}</p>}
+                        <p className="product-date">
+                          Posted: {new Date(product.createdAt).toLocaleDateString()}
+                        </p>
+                        <div style={{ marginBottom: '10px' }}>
+                          {isCompleted ? (
+                            <span style={{ display: 'inline-block', background: '#E8F5EF', color: '#1E9B6B', padding: '6px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 'bold' }}>✅ Completed</span>
+                          ) : isPending ? (
+                            <span style={{ display: 'inline-block', background: '#FBF0DA', color: '#C88A15', padding: '6px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 'bold' }}>🟡 Awaiting your confirmation</span>
+                          ) : (
+                            <span style={{ display: 'inline-block', background: '#EAF3FF', color: '#2A76D4', padding: '6px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 'bold' }}>🟢 Active</span>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap' }}>
+                          {!isCompleted && isPending && (
+                            <button
+                              className="btn-edit-sm"
+                              onClick={() => handleConfirmPickup(product._id)}
+                              disabled={confirmingId === product._id}
+                              style={{ background: '#1E9B6B', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                              {confirmingId === product._id ? 'Saving...' : 'Confirm Pickup'}
+                            </button>
+                          )}
+                          <button
+                            className="btn-edit-sm"
+                            onClick={() => setEditingProduct(product)}
+                            style={{ background: '#4CAF50', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="btn-delete"
+                            onClick={() => handleDelete(product._id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </div>
-                      <p className="product-desc">{product.description}</p>
-                      {product.price && <p className="product-price">${product.price}</p>}
-                      <p className="product-date">
-                        Posted: {new Date(product.createdAt).toLocaleDateString()}
-                      </p>
-                      <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-                        <button
-                          className="btn-edit-sm"
-                          onClick={() => setEditingProduct(product)}
-                          style={{ background: '#4CAF50', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="btn-delete"
-                          onClick={() => handleDelete(product._id)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </section>
