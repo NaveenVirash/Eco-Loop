@@ -36,16 +36,32 @@ const ProductSchema = new mongoose.Schema({
         required: true
     },
 
+    collectedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User'
+    },
+
     listingType: {
         type: String,
         enum: ['marketplace', 'recycling'],
         default: 'marketplace'
     },
 
-    pointsAwarded: {
-        type: Number,
-        default: 0
+    // ─── Dual-Confirmation Workflow ───────────────────────────────────────────
+
+    /**
+     * Lifecycle states:
+     *   active             → visible to everyone, awaiting collection claim
+     *   pending_collection → a collector has claimed it; awaiting donor confirmation
+     *   completed          → both parties confirmed; hidden from public; data preserved
+     */
+    status: {
+        type: String,
+        enum: ['active', 'pending_collection', 'completed'],
+        default: 'active'
     },
+
+    // ─── Legacy / Cron-expiry fields (kept for backward-compat) ──────────────
 
     isExpired: {
         type: Boolean,

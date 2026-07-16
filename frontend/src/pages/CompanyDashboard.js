@@ -26,6 +26,11 @@ export default function CompanyDashboard() {
   const [expiredProducts, setExpiredProducts] = useState([]);
   const [expiredLoading, setExpiredLoading] = useState(false);
 
+  // Recycling center posts ("Contact Recycling Center" listings)
+  const [recyclingProducts, setRecyclingProducts] = useState([]);
+  const [recyclingLoading, setRecyclingLoading] = useState(false);
+  const [confirmingId, setConfirmingId] = useState(null);
+
   // Sync profile form state when user changes
   useEffect(() => {
     if (user) {
@@ -40,6 +45,7 @@ export default function CompanyDashboard() {
   useEffect(() => {
     fetchProducts();
     fetchExpiredProducts();
+    fetchRecyclingListings();
   }, []);
 
   const fetchProducts = async () => {
@@ -63,6 +69,48 @@ export default function CompanyDashboard() {
       console.error('Failed to fetch expired products:', err);
     } finally {
       setExpiredLoading(false);
+    }
+  };
+
+  const fetchRecyclingListings = async () => {
+    try {
+      setRecyclingLoading(true);
+      const response = await productAPI.getRecycling();
+      setRecyclingProducts(response.data.data);
+    } catch (err) {
+      console.error('Failed to fetch recycling listings:', err);
+    } finally {
+      setRecyclingLoading(false);
+    }
+  };
+
+  // ── Dual-Confirmation: Collector claims an item ──────────────────────────
+  const handleClaimCollection = async (productId) => {
+    if (!window.confirm('Confirm that you have collected this item?')) return;
+    try {
+      const res = await productAPI.claimCollection(productId);
+      if (res.data.success) {
+        alert(res.data.message);
+        fetchRecyclingListings();
+        fetchExpiredProducts();
+      }
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to claim collection');
+    }
+  };
+
+  const handleConfirmCollector = async (productId) => {
+    if (!window.confirm('Confirm that you completed the pickup?')) return;
+    try {
+      setConfirmingId(productId);
+      const res = await productAPI.confirmCollector(productId);
+      alert(res.data.message || 'Collector confirmation saved');
+      fetchRecyclingListings();
+      fetchExpiredProducts();
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to confirm pickup');
+    } finally {
+      setConfirmingId(null);
     }
   };
 
@@ -138,10 +186,16 @@ export default function CompanyDashboard() {
           Company Listings
         </button>
         <button
+          className={`tab-btn ${activeTab === 'recycling' ? 'active' : ''}`}
+          onClick={() => setActiveTab('recycling')}
+        >
+          ♻️ Recycling Requests
+        </button>
+        <button
           className={`tab-btn ${activeTab === 'recycling-expired' ? 'active' : ''}`}
           onClick={() => setActiveTab('recycling-expired')}
         >
-          ♻️ Recyclable Items
+          ⏰ Expired Items
         </button>
         <button
           className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
@@ -240,6 +294,105 @@ export default function CompanyDashboard() {
               )}
             </section>
           </>
+        ) : activeTab === 'recycling' ? (
+          <section className="dashboard-section">
+            <div className="section-header">
+              <h2>Recycling Center Requests ({recyclingProducts.length})</h2>
+              <button className="btn-toggle" onClick={fetchRecyclingListings}>
+                🔄 Refresh
+              </button>
+            </div>
+            <p style={{ color: 'var(--ink2)', marginBottom: '20px' }}>
+              These items were posted by donors using "Contact Recycling Center". Claim an item to confirm collection.
+            </p>
+            {recyclingLoading ? (
+              <p>Loading recycling requests...</p>
+            ) : recyclingProducts.length === 0 ? (
+              <p className="empty-state">No recycling requests at the moment.</p>
+            ) : (
+              <div className="products-grid">
+                {recyclingProducts.map(product => {
+                  const isClaimed = !!product.collectedBy;
+                  const isClaimedByMe = product.collectedBy && (
+                    (typeof product.collectedBy === 'string' && product.collectedBy === user?._id) ||
+                    (product.collectedBy._id === user?._id)
+                  );
+                  const isCompleted = product.status === 'completed';
+                  const isPending = product.status === 'pending_collection';
+
+                  return (
+                    <div key={product._id} className="product-card" style={{ borderLeft: `4px solid ${isCompleted ? '#1E9B6B' : isPending ? '#F5A623' : '#2A76D4'}` }}>
+                      <div className="product-header">
+                        <h3>{product.title}</h3>
+                        <span className="category-badge">{product.category}</span>
+                      </div>
+                      <p className="product-desc">{product.description}</p>
+                      <p className="product-date">
+                        Posted: {new Date(product.createdAt).toLocaleDateString()}
+                      </p>
+                      <p className="product-user">
+                        Donor: {product?.user?.name || 'Unknown'} ({product?.user?.email || 'No email'})
+                      </p>
+                      {product.location && (
+                        <p style={{ fontSize: '12px', color: 'var(--ink2)' }}>📍 {product.location}</p>
+                      )}
+
+                      {/* Status + Action */}
+                      <div style={{ marginTop: '12px' }}>
+                        {isCompleted ? (
+                          <span style={{ display: 'inline-block', background: '#E8F5EF', color: '#1E9B6B', padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold' }}>
+                            ✅ Completed
+                          </span>
+                        ) : isPending && isClaimedByMe ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <span style={{ display: 'inline-block', background: '#FBF0DA', color: '#C88A15', padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold' }}>
+                              🟡 Awaiting Donor Confirmation
+                            </span>
+                            <button
+                              onClick={() => handleConfirmCollector(product._id)}
+                              disabled={confirmingId === product._id}
+                              style={{
+                                background: '#2A76D4',
+                                color: 'white',
+                                border: 'none',
+                                padding: '8px 16px',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontWeight: 'bold',
+                                fontSize: '13px'
+                              }}
+                            >
+                              {confirmingId === product._id ? 'Saving...' : 'Confirm Pickup'}
+                            </button>
+                          </div>
+                        ) : isPending && !isClaimedByMe ? (
+                          <span style={{ display: 'inline-block', background: '#F0F0F0', color: '#888', padding: '6px 14px', borderRadius: '20px', fontSize: '13px' }}>
+                            Claimed by another collector
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => handleClaimCollection(product._id)}
+                            style={{
+                              background: '#1E9B6B',
+                              color: 'white',
+                              border: 'none',
+                              padding: '8px 16px',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              fontWeight: 'bold',
+                              fontSize: '13px'
+                            }}
+                          >
+                            🚚 Claim & Confirm Collection
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
         ) : activeTab === 'recycling-expired' ? (
           <section className="dashboard-section">
             <div className="section-header">

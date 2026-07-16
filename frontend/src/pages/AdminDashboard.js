@@ -8,6 +8,7 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('users');
+  const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState('');
 
   // Profile modal
@@ -58,9 +59,17 @@ export default function AdminDashboard() {
     }
   };
 
-  const regularUsers = users.filter(u => u.role === 'user' || u.role === 'admin');
-  const companies = users.filter(u => u.role === 'company');
-  const suspendedUsers = users.filter(u => u.status === 'suspended');
+  const lowerQuery = searchQuery.toLowerCase();
+
+  const regularUsers = users.filter(u => (u.role === 'user' || u.role === 'admin') && (u.name?.toLowerCase().includes(lowerQuery) || u.email?.toLowerCase().includes(lowerQuery)));
+  const companies = users.filter(u => u.role === 'company' && (u.name?.toLowerCase().includes(lowerQuery) || u.email?.toLowerCase().includes(lowerQuery)));
+  const suspendedUsers = users.filter(u => u.status === 'suspended' && (u.name?.toLowerCase().includes(lowerQuery) || u.email?.toLowerCase().includes(lowerQuery)));
+
+  const filteredProducts = products.filter(p => 
+    p.title?.toLowerCase().includes(lowerQuery) || 
+    p.category?.toLowerCase().includes(lowerQuery) ||
+    (p.user?.name || p.user)?.toString().toLowerCase().includes(lowerQuery)
+  );
 
   const handleViewProfile = (userOrCompany) => {
     setProfileModal(userOrCompany);
@@ -167,6 +176,18 @@ export default function AdminDashboard() {
           💬 Messages
         </button>
       </div>
+
+      {activeTab !== 'messages' && (
+        <div className="admin-search-container" style={{ margin: '20px 0' }}>
+          <input 
+            type="text" 
+            placeholder={`Search ${activeTab}...`} 
+            value={searchQuery} 
+            onChange={(e) => setSearchQuery(e.target.value)} 
+            style={{ padding: '10px', width: '100%', maxWidth: '400px', borderRadius: '4px', border: '1px solid #ddd' }}
+          />
+        </div>
+      )}
 
       <div className="admin-content">
         {activeTab === 'messages' ? (
@@ -364,7 +385,7 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {products.map(product => {
+                    {filteredProducts.map(product => {
                       const createdDate = new Date(product.createdAt);
                       const expiresDate = new Date(createdDate.getTime() + 30 * 24 * 60 * 60 * 1000);
                       const daysLeft = Math.ceil((expiresDate - new Date()) / (1000 * 60 * 60 * 24));
