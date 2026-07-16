@@ -48,17 +48,12 @@ export const productAPI = {
   },
   delete: (id) =>
     axios.delete(`/api/products/${id}`, getAuthHeaders()),
-
-  // ── Dual-Confirmation workflow ─────────────────────────────────────────────
-  // Collector claims a listing (sets collectorConfirmed = true, status = pending_collection)
   claimCollection: (id) =>
     axios.put(`/api/products/${id}/claim`, {}, getAuthHeaders()),
-  // Collector re-confirms (idempotent)
   confirmCollector: (id) =>
     axios.put(`/api/products/${id}/confirm-collector`, {}, getAuthHeaders()),
-  // Donor confirms the collector picked up the item
   confirmDonor: (id) =>
-    axios.put(`/api/products/${id}/confirm-donor`, {}, getAuthHeaders()),
+    axios.put(`/api/products/${id}/confirm-donor`, {}, getAuthHeaders())
 };
 
 // User API (Admin only)
@@ -104,10 +99,25 @@ export const messageAPI = {
     axios.get('/api/messages/unread/count', getAuthHeaders())
 };
 
+// Transactions API
+export const transactionAPI = {
+  requestProduct: (productId, message) =>
+    axios.post('/api/transactions/request', { productId, message }, getAuthHeaders()),
+  getProductTransactions: (productId) =>
+    axios.get(`/api/transactions/product/${productId}`, getAuthHeaders()),
+  acceptRequest: (transactionId) =>
+    axios.put(`/api/transactions/${transactionId}/accept`, {}, getAuthHeaders()),
+  confirmBuyer: (transactionId) =>
+    axios.put(`/api/transactions/${transactionId}/confirm-buyer`, {}, getAuthHeaders()),
+  confirmSeller: (transactionId) =>
+    axios.put(`/api/transactions/${transactionId}/confirm-seller`, {}, getAuthHeaders())
+};
+
 // Add existing and export them as APIs
 export const API = {
     auth: authAPI,
     product: productAPI,
     user: userAPI,
-    message: messageAPI
+    message: messageAPI,
+    transaction: transactionAPI
 };

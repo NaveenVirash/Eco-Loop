@@ -28,6 +28,7 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/messages', require('./routes/messageRoutes'));
+app.use('/api/transactions', require('./routes/transactionRoutes'));
 
 // Run every day at midnight
 cron.schedule('0 0 * * *', async () => {

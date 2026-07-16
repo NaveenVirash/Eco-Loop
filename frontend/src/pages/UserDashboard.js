@@ -225,6 +225,11 @@ export default function UserDashboard() {
                         <p className="product-date">
                           Posted: {new Date(product.createdAt).toLocaleDateString()}
                         </p>
+                        {product.collectedBy && (
+                          <p className="product-date" style={{ color: '#1E9B6B', fontWeight: '500' }}>
+                            Collected by: {product.collectedBy.name || product.collectedBy.email}
+                          </p>
+                        )}
                         <div style={{ marginBottom: '10px' }}>
                           {isCompleted ? (
                             <span style={{ display: 'inline-block', background: '#E8F5EF', color: '#1E9B6B', padding: '6px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 'bold' }}>✅ Completed</span>

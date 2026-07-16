@@ -9,7 +9,7 @@ const {
     getExpiredProducts,
     getRecyclingListings,
     claimCollection,
-    confirmCollection,
+    confirmCollector,
     confirmDonor
 } = require('../controllers/productController');
 const { protect, authorize } = require('../middlewares/authMiddleware');
@@ -34,15 +34,9 @@ router.route('/recycling')
 router.route('/expired')
     .get(protect, authorize('company', 'admin'), getExpiredProducts);
 
-// ─── Dual-Confirmation workflow ───────────────────────────────────────────────
-
-// Collector or buyer claims a listing and sets collectorConfirmed = true
+// ─── Dual-Confirmation workflow ───────────────
 router.put('/:id/claim', protect, claimCollection);
-
-// Collector or buyer re-confirms (idempotent)
-router.put('/:id/confirm-collector', protect, confirmCollection);
-
-// Donor confirms the collector/buyer picked it up
+router.put('/:id/confirm-collector', protect, confirmCollector);
 router.put('/:id/confirm-donor', protect, confirmDonor);
 
 // ─── Standard CRUD ────────────────────────────────────────────────────────────

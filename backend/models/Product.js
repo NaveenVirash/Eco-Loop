@@ -36,6 +36,11 @@ const ProductSchema = new mongoose.Schema({
         required: true
     },
 
+    collectedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User'
+    },
+
     listingType: {
         type: String,
         enum: ['marketplace', 'recycling'],
@@ -54,46 +59,6 @@ const ProductSchema = new mongoose.Schema({
         type: String,
         enum: ['active', 'pending_collection', 'completed'],
         default: 'active'
-    },
-
-    /** The company/collector who claimed this item for collection */
-    collectedBy: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'User',
-        default: null
-    },
-
-    /** Collector has confirmed they picked it up */
-    collectorConfirmed: {
-        type: Boolean,
-        default: false
-    },
-
-    /** Donor has confirmed the collector took it */
-    donorConfirmed: {
-        type: Boolean,
-        default: false
-    },
-
-    collectorConfirmedAt: {
-        type: Date
-    },
-
-    donorConfirmedAt: {
-        type: Date
-    },
-
-    completedAt: {
-        type: Date
-    },
-
-    /**
-     * Anti-fraud flag: once true, points will never be awarded again for this
-     * listing, even if the confirm endpoints are called multiple times.
-     */
-    pointsAwarded: {
-        type: Boolean,
-        default: false
     },
 
     // ─── Legacy / Cron-expiry fields (kept for backward-compat) ──────────────

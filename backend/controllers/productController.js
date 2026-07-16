@@ -1,5 +1,6 @@
 const Product = require('../models/Product');
 const User = require('../models/User');
+const Transaction = require('../models/Transaction');
 const { RECYCLING_POST_POINTS, DONOR_POINTS, COLLECTOR_POINTS, awardPointsAndBadge } = require('./pointsHelper');
 
 // ─── Public / Basic CRUD ──────────────────────────────────────────────────────
@@ -357,199 +358,82 @@ exports.getRecyclingListings = async (req, res, next) => {
 };
 
 
-// ─── Dual-Confirmation Workflow ───────────────────────────────────────────────
+// ─── Dual-Confirmation Workflow moved to transactionController.js ───────────
 
-/**
- * Internal helper — called by both confirm handlers.
- *
- * If both collectorConfirmed AND donorConfirmed are true, and points have NOT
- * yet been awarded, atomically:
- *   1. Credits DONOR_POINTS to the listing owner (Donor).
- *   2. Credits COLLECTOR_POINTS to the collector (Company).
- *   3. Sets status = 'completed', pointsAwarded = true, completedAt = now.
- *
- * The `pointsAwarded` flag is the idempotency guard — once true, this function
- * returns immediately without awarding more points, making the confirm
- * endpoints safe to call multiple times.
- *
- * @param {Product} product - Mongoose document (already saved with latest flags)
- * @returns {Promise<{ completed: boolean, donorResult?, collectorResult? }>}
- */
-async function _tryComplete(product) {
-    if (!product.collectorConfirmed || !product.donorConfirmed) {
-        return { completed: false };
-    }
-
-    // Atomically claim the right to award points by toggling pointsAwarded
-    // Only the first caller wins; subsequent calls see pointsAwarded === true.
-    const claimed = await Product.findOneAndUpdate(
-        { _id: product._id, pointsAwarded: false },
-        {
-            $set: {
-                pointsAwarded: true,
-                status: 'completed',
-                completedAt: new Date()
-            }
-        },
-        { returnDocument: 'after' }
-    );
-
-    if (!claimed) {
-        // pointsAwarded was already true — another request got here first
-        return { completed: true, alreadyAwarded: true };
-    }
-
-    // Award points concurrently to both parties
-    const [donorResult, collectorResult] = await Promise.all([
-        awardPointsAndBadge(product.user, DONOR_POINTS),
-        awardPointsAndBadge(product.collectedBy, COLLECTOR_POINTS)
-    ]);
-
-    return { completed: true, donorResult, collectorResult };
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-
-// @desc    Collector claims a recycling listing for collection
-//          Sets collectedBy, collectorConfirmed = true, status = pending_collection
-// @route   PUT /api/products/:id/claim
-// @access  Private (Company only)
 exports.claimCollection = async (req, res, next) => {
     try {
         const product = await Product.findById(req.params.id);
-
-        if (!product) {
-            return res.status(404).json({ success: false, error: 'Product not found' });
-        }
-
-        if (product.status === 'completed') {
-            return res.status(400).json({ success: false, error: 'This listing has already been completed' });
-        }
-
+        if (!product) return res.status(404).json({ success: false, error: 'Product not found' });
+        
         if (product.user.toString() === req.user.id) {
-            return res.status(400).json({ success: false, error: 'You cannot claim your own listing' });
+            return res.status(400).json({ success: false, error: 'You cannot claim your own product' });
+        }
+        if (product.status !== 'active') {
+            return res.status(400).json({ success: false, error: 'Product is no longer available' });
         }
 
-        if (product.listingType === 'recycling') {
-            if (req.user.role !== 'company' && req.user.role !== 'admin') {
-                return res.status(403).json({ success: false, error: 'Only recycling companies can claim recycling listings' });
-            }
-        }
-
-        if (product.collectedBy && product.collectedBy.toString() !== req.user.id) {
-            return res.status(400).json({ success: false, error: 'This listing has already been claimed by another collector' });
-        }
-
-        // Claim the listing
-        product.collectedBy        = req.user.id;
-        product.collectorConfirmed = true;
-        product.collectorConfirmedAt = new Date();
-        product.status             = 'pending_collection';
-
+        product.status = 'pending_collection';
+        product.collectedBy = req.user.id;
         await product.save();
 
-        // Attempt completion (in case donor had pre-confirmed — unlikely but handled)
-        const completionResult = await _tryComplete(product);
-
-        res.status(200).json({
-            success: true,
-            message: completionResult.completed
-                ? 'Transaction confirmed and points awarded!'
-                : product.listingType === 'recycling'
-                    ? 'Collection claimed. Waiting for donor to confirm pickup.'
-                    : 'Purchase claimed. Waiting for the donor to confirm completion.',
-            data: product,
-            completionResult
+        await Transaction.create({
+            product: product._id,
+            seller: product.user,
+            buyer: req.user.id,
+            status: 'accepted'
         });
 
+        res.status(200).json({ success: true, message: 'Item claimed successfully. Waiting for donor confirmation.' });
     } catch (err) {
         res.status(400).json({ success: false, error: err.message });
     }
 };
 
-// @desc    Collector re-confirms collection (idempotent)
-// @route   PUT /api/products/:id/confirm-collector
-// @access  Private (Company only)
-exports.confirmCollection = async (req, res, next) => {
+async function _tryCompleteProductTransaction(transaction) {
+    if (!transaction.buyerConfirmed || !transaction.sellerConfirmed) return { completed: false };
+
+    if (transaction.status === 'completed') return { completed: true, alreadyAwarded: true };
+
+    transaction.pointsAwarded = true;
+    transaction.status = 'completed';
+    transaction.completedAt = new Date();
+    await transaction.save();
+
+    await awardPointsAndBadge(transaction.seller, DONOR_POINTS);
+    await awardPointsAndBadge(transaction.buyer, COLLECTOR_POINTS);
+
+    await Product.findByIdAndUpdate(transaction.product, { status: 'completed' });
+
+    return { completed: true };
+}
+
+exports.confirmCollector = async (req, res, next) => {
     try {
-        const product = await Product.findById(req.params.id);
+        const transaction = await Transaction.findOne({ product: req.params.id, buyer: req.user.id, status: 'accepted' });
+        if (!transaction) return res.status(404).json({ success: false, error: 'Active transaction not found' });
 
-        if (!product) {
-            return res.status(404).json({ success: false, error: 'Product not found' });
-        }
+        transaction.buyerConfirmed = true;
+        transaction.buyerConfirmedAt = new Date();
+        await transaction.save();
 
-        if (product.status === 'completed') {
-            return res.status(200).json({ success: true, message: 'Already completed', data: product });
-        }
-
-        // Only the collector who claimed this item can confirm
-        if (!product.collectedBy || product.collectedBy.toString() !== req.user.id) {
-            return res.status(403).json({ success: false, error: 'You are not the assigned collector for this listing' });
-        }
-
-        product.collectorConfirmed   = true;
-        product.collectorConfirmedAt = new Date();
-        await product.save();
-
-        const completionResult = await _tryComplete(product);
-
-        res.status(200).json({
-            success: true,
-            message: completionResult.completed
-                ? 'Both parties confirmed — points awarded!'
-                : 'Your confirmation saved. Waiting for donor to confirm.',
-            data: product,
-            completionResult
-        });
-
+        const comp = await _tryCompleteProductTransaction(transaction);
+        res.status(200).json({ success: true, message: comp.completed ? 'Points awarded! Transaction complete.' : 'Confirmed. Waiting for donor.' });
     } catch (err) {
         res.status(400).json({ success: false, error: err.message });
     }
 };
 
-// @desc    Donor (listing owner) confirms the collector picked up the item
-// @route   PUT /api/products/:id/confirm-donor
-// @access  Private (User — must be the listing owner)
 exports.confirmDonor = async (req, res, next) => {
     try {
-        const product = await Product.findById(req.params.id);
+        const transaction = await Transaction.findOne({ product: req.params.id, seller: req.user.id, status: 'accepted' });
+        if (!transaction) return res.status(404).json({ success: false, error: 'Active transaction not found' });
 
-        if (!product) {
-            return res.status(404).json({ success: false, error: 'Product not found' });
-        }
+        transaction.sellerConfirmed = true;
+        transaction.sellerConfirmedAt = new Date();
+        await transaction.save();
 
-        if (product.status === 'completed') {
-            return res.status(200).json({ success: true, message: 'Already completed', data: product });
-        }
-
-        // Only the original donor (listing owner) can confirm
-        if (product.user.toString() !== req.user.id) {
-            return res.status(403).json({ success: false, error: 'Only the listing owner can confirm donor pickup' });
-        }
-
-        // Collector must have claimed before the donor can confirm
-        if (!product.collectedBy || !product.collectorConfirmed) {
-            return res.status(400).json({
-                success: false,
-                error: 'No collector has claimed this listing yet. Please wait for a collector to confirm first.'
-            });
-        }
-
-        product.donorConfirmed   = true;
-        product.donorConfirmedAt = new Date();
-        await product.save();
-
-        const completionResult = await _tryComplete(product);
-
-        res.status(200).json({
-            success: true,
-            message: completionResult.completed
-                ? '🎉 Pickup confirmed! You have earned 10 Eco-Points!'
-                : 'Your confirmation saved. Waiting for collector to confirm.',
-            data: product,
-            completionResult
-        });
-
+        const comp = await _tryCompleteProductTransaction(transaction);
+        res.status(200).json({ success: true, message: comp.completed ? 'Points awarded! Transaction complete.' : 'Confirmed. Waiting for collector.' });
     } catch (err) {
         res.status(400).json({ success: false, error: err.message });
     }
