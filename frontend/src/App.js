@@ -28,15 +28,15 @@ function App() {
       <Router>
         <NavbarNew />
         <Routes>
-          <Route 
-            path="/" 
+          <Route
+            path="/"
             element={
               <>
                 <HomePage />
                 <ProductListing />
                 <Leaderboard />
               </>
-            } 
+            }
           />
           <Route path="/products" element={<ProductListing />} />
           <Route path="/product/:id" element={<ProductDetail />} />
@@ -46,21 +46,21 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/register-company" element={<RegisterCompany />} />
-          <Route 
-            path="/dashboard" 
+          <Route
+            path="/dashboard"
             element={
               <PrivateRoute>
                 <DashboardContainer />
               </PrivateRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin" 
+          <Route
+            path="/admin"
             element={
               <PrivateRoute requiredRole="admin">
                 <AdminDashboard />
               </PrivateRoute>
-            } 
+            }
           />
         </Routes>
         <Footer />
