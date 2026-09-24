@@ -18,7 +18,8 @@ const app = express();
 app.use(cors());
 
 app.use(express.json());
-app.use('/uploads', express.static('uploads'));
+// Note: /uploads static route removed — images are stored on Cloudinary and served via their HTTPS URLs.
+
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));

@@ -1,37 +1,31 @@
 const multer = require('multer');
-const path = require('path');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../config/cloudinary');
 
-// Set storage engine
-const storage = multer.diskStorage({
-  destination: './uploads/',
-  filename: function (req, file, cb) {
-    cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-  }
+// Store uploads directly in Cloudinary (no local disk writes)
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'eco-loop',          // organise uploads in a named folder
+    allowed_formats: ['jpeg', 'jpg', 'png', 'gif', 'jfif', 'webp'],
+    transformation: [{ quality: 'auto', fetch_format: 'auto' }],
+  },
 });
 
-// Initialize upload
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 5000000 }, // 5MB limit
-  fileFilter: function (req, file, cb) {
-    checkFileType(file, cb);
-  }
-});
-
-// Check File Type
-function checkFileType(file, cb) {
-  // Allowed ext
-  const filetypes = /jpeg|jpg|png|gif|jfif/;
-  // Check ext
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  // Check mime
-  const mimetype = filetypes.test(file.mimetype);
-
-  if (mimetype && extname) {
-    return cb(null, true);
+// File type filter (belt-and-suspenders on top of allowed_formats)
+function fileFilter(req, file, cb) {
+  const allowed = /jpeg|jpg|png|gif|jfif|webp/;
+  if (allowed.test(file.mimetype)) {
+    cb(null, true);
   } else {
-    cb('Error: Images Only!');
+    cb(new Error('Error: Images Only!'));
   }
 }
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  fileFilter,
+});
 
 module.exports = upload;
