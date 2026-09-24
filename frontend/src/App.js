@@ -18,9 +18,6 @@ import DashboardContainer from './pages/DashboardContainer';
 import ProductDetail from './pages/ProductDetail';
 import './styles/GlobalStyles.css';
 import './App.css';
-import axios from 'axios';
-
-axios.defaults.baseURL = 'http://localhost:5000';
 
 function App() {
   return (

@@ -209,7 +209,7 @@ export default function ProductDetail() {
           <div className="pd-left-col">
             <div className="pd-image-wrapper">
               {product.imageUrl ? (
-                <img src={`http://localhost:5000${product.imageUrl}`} alt={product.title} className="pd-image" />
+                <img src={product.imageUrl} alt={product.title} className="pd-image" />
               ) : (
                 <div className="pd-image-placeholder">
                   <span className="pd-placeholder-icon">📦</span>
