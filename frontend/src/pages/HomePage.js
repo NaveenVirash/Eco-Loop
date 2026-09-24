@@ -13,7 +13,7 @@ const HomePage = () => {
           <div className="hero-inner">
             <div>
               <div className="hero-kicker fu">
-                
+
               </div>
               <h1 className="hero-title fu d1">
                 Give your<br />
@@ -44,7 +44,7 @@ const HomePage = () => {
                   </div>
                 </div>
                 <span className="hero-trust-txt">
-                  <strong>4,200+</strong> members across Sri Lanka
+                  <strong></strong> members across Sri Lanka
                 </span>
               </div>
             </div>
@@ -100,7 +100,7 @@ const HomePage = () => {
       <div className="stats-bar">
         <div className="wrap">
           <div className="stats-row">
-            <div className="s-item">
+            {/*<div className="s-item">
               <div className="s-num">18,640</div>
               <div className="s-lbl">Items Shared</div>
             </div>
@@ -118,7 +118,7 @@ const HomePage = () => {
             <div className="s-item">
               <div className="s-num">98%</div>
               <div className="s-lbl">Items Reused</div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
@@ -195,7 +195,7 @@ const HomePage = () => {
                 Join Community
               </Link>
             </div>
-            <div className="cta-nums">
+            {/* <div className="cta-nums">
               <div className="cn-item">
                 <div className="cn-num">486</div>
                 <div className="cn-lbl">NEW ITEMS THIS WEEK</div>
@@ -208,7 +208,7 @@ const HomePage = () => {
                 <div className="cn-num">2.8t</div>
                 <div className="cn-lbl">WASTE DIVERTED</div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>

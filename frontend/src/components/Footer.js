@@ -36,7 +36,7 @@ const Footer = () => {
               impact.
             </p>
             <div className="foot-eco">
-              🌍 Impact: 2,847kg waste diverted
+              🌍 ♻️ Items Given a Second Life
             </div>
           </div>
 
