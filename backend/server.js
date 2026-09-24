@@ -15,13 +15,11 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors({
-    origin: 'http://localhost:3000',
-    credentials: true
-}));
+app.use(cors());
 
 app.use(express.json());
-app.use('/uploads', express.static('uploads'));
+// Note: /uploads static route removed — images are stored on Cloudinary and served via their HTTPS URLs.
+
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
@@ -38,6 +36,10 @@ cron.schedule('0 0 * * *', async () => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () =>
-    console.log(`Server running on port ${PORT}`)
-);
+if (require.main === module) {
+    app.listen(PORT, () =>
+        console.log(`Server running on port ${PORT}`)
+    );
+}
+
+module.exports = app;

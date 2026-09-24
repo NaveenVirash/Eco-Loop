@@ -76,7 +76,8 @@ exports.createProduct = async (req, res, next) => {
         req.body.user = req.user.id;
 
         if (req.file) {
-            req.body.imageUrl = `/uploads/${req.file.filename}`;
+            // req.file.path is the secure Cloudinary HTTPS URL provided by multer-storage-cloudinary
+            req.body.imageUrl = req.file.path;
         }
 
         // Award 5 pts immediately for "Contact Recycling Center" posts.
@@ -247,7 +248,8 @@ exports.updateProduct = async (req, res, next) => {
         }
 
         if (req.file) {
-            req.body.imageUrl = `/uploads/${req.file.filename}`;
+            // req.file.path is the secure Cloudinary HTTPS URL provided by multer-storage-cloudinary
+            req.body.imageUrl = req.file.path;
         }
 
         product = await Product.findByIdAndUpdate(req.params.id, req.body, {

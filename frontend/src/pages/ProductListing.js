@@ -105,7 +105,7 @@ const ProductListing = () => {
               >
                 <div className="lcard-img">
                   {product.imageUrl ? (
-                    <img src={`http://localhost:5000${product.imageUrl}`} alt={product.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={product.imageUrl} alt={product.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
                     <div
                       className="ci"
