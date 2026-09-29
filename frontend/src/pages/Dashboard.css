@@ -7,6 +7,7 @@
 .dashboard-header {
   margin-bottom: 40px;
   margin-top: 80px;
+  margin-top: 80px;
 }
 
 .dashboard-header h1 {
@@ -20,6 +21,7 @@
 .dashboard-header p {
   font-size: 16px;
   color: #5A5A56;
+  margin-top: 80px;
 }
 
 .error-banner {
