@@ -5,25 +5,24 @@ const { RECYCLING_POST_POINTS, DONOR_POINTS, COLLECTOR_POINTS, awardPointsAndBad
 
 // ─── Public / Basic CRUD ──────────────────────────────────────────────────────
 
-// @desc    Get all active marketplace products (public browse)
-// @route   GET /api/products
-// @access  Public
-exports.getProducts = async (req, res, next) => {
+// @desc    Get all expired products for recycling companies
+// @route   GET /api/products/expired
+// @access  Private (Company/Admin)
+exports.getExpiredProducts = async (req, res, next) => {
     try {
         const products = await Product.find({
             listingType: 'marketplace',
-            status: 'active',
-            expiresAt: { $gt: new Date() } // අනාගතයේ Expire වන ඒවා පමණි
-        }).populate({
-            path: 'user',
-            select: 'name email points'
-        });
+            status: { $in: ['active', 'pending_collection'] },
+            $or: [
+                { isExpired: true },
+                { expiresAt: { $lte: new Date() } }
+            ]
+        })
+            .populate({ path: 'user', select: 'name email phone points address' })
+            .populate({ path: 'collectedBy', select: 'name email' })
+            .sort('-expiresAt');
 
-        res.status(200).json({
-            success: true,
-            count: products.length,
-            data: products
-        });
+        res.status(200).json({ success: true, count: products.length, data: products });
     } catch (err) {
         res.status(400).json({ success: false, error: err.message });
     }
