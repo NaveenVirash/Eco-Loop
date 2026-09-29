@@ -5,22 +5,19 @@ const { RECYCLING_POST_POINTS, DONOR_POINTS, COLLECTOR_POINTS, awardPointsAndBad
 
 // ─── Public / Basic CRUD ──────────────────────────────────────────────────────
 
-// @desc    Get all expired products for recycling companies
-// @route   GET /api/products/expired
-// @access  Private (Company/Admin)
-exports.getExpiredProducts = async (req, res, next) => {
+// @desc    Get all active marketplace products (public browse)
+// @route   GET /api/products
+// @access  Public
+exports.getProducts = async (req, res, next) => {
     try {
         const products = await Product.find({
             listingType: 'marketplace',
-            status: { $in: ['active', 'pending_collection'] },
-            $or: [
-                { isExpired: true },
-                { expiresAt: { $lte: new Date() } }
-            ]
-        })
-            .populate({ path: 'user', select: 'name email phone points address' })
-            .populate({ path: 'collectedBy', select: 'name email' })
-            .sort('-expiresAt');
+            status: 'active',
+            expiresAt: { $gt: new Date() }
+        }).populate({
+            path: 'user',
+            select: 'name email points'
+        });
 
         res.status(200).json({ success: true, count: products.length, data: products });
     } catch (err) {
@@ -97,32 +94,6 @@ exports.createProduct = async (req, res, next) => {
             success: false,
             error: err.message
         });
-    }
-};
-
-// @desc    Mark expired products (cron job target)
-// @route   Internal Cron Job
-exports.getExpiredProducts = async (req, res, next) => {
-    try {
-        const products = await Product.find({
-            listingType: 'marketplace',
-            status: 'active',
-            $or: [
-                { isExpired: true },
-                { expiresAt: { $lte: new Date() } } // Expire වූ සැනින් මෙතනට එයි
-            ]
-        }).populate({
-            path: 'user',
-            select: 'name email phone points address'
-        }).sort('-expiresAt');
-
-        res.status(200).json({
-            success: true,
-            count: products.length,
-            data: products
-        });
-    } catch (err) {
-        res.status(400).json({ success: false, error: err.message });
     }
 };
 
@@ -307,23 +278,20 @@ exports.getProduct = async (req, res, next) => {
 exports.getExpiredProducts = async (req, res, next) => {
     try {
         const products = await Product.find({
-            isExpired: true,
-            status: { $ne: 'completed' }
-        }).populate({
-            path: 'user',
-            select: 'name email phone points address'
-        }).sort('-expiresAt');
+            listingType: 'marketplace',
+            status: { $in: ['active', 'pending_collection'] },
+            $or: [
+                { isExpired: true },
+                { expiresAt: { $lte: new Date() } }
+            ]
+        })
+            .populate({ path: 'user', select: 'name email phone points address' })
+            .populate({ path: 'collectedBy', select: 'name email' })
+            .sort('-expiresAt');
 
-        res.status(200).json({
-            success: true,
-            count: products.length,
-            data: products
-        });
+        res.status(200).json({ success: true, count: products.length, data: products });
     } catch (err) {
-        res.status(400).json({
-            success: false,
-            error: err.message
-        });
+        res.status(400).json({ success: false, error: err.message });
     }
 };
 
