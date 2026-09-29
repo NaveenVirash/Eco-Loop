@@ -5,6 +5,7 @@ const cron = require('node-cron');
 
 const connectDB = require('./config/db');
 const expireProducts = require('./jobs/productExpiryJob');
+const resetWeeklyPoints = require('./jobs/weeklyResetJob');
 
 // Load env vars
 dotenv.config();
@@ -28,10 +29,16 @@ app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/messages', require('./routes/messageRoutes'));
 app.use('/api/transactions', require('./routes/transactionRoutes'));
 
-// Run every day at midnight
+// Run every day at midnight — mark expired listings
 cron.schedule('0 0 * * *', async () => {
     console.log('Checking expired products...');
     await expireProducts();
+});
+
+// Run every Monday at midnight — reset weekly leaderboard points
+cron.schedule('0 0 * * 1', async () => {
+    console.log('Resetting weekly leaderboard points...');
+    await resetWeeklyPoints();
 });
 
 const PORT = process.env.PORT || 5000;

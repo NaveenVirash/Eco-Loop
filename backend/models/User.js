@@ -39,6 +39,10 @@ const UserSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    weeklyPoints: {
+        type: Number,
+        default: 0
+    },
     /**
      * Badge tier — automatically updated by awardPointsAndBadge() whenever
      * Eco-Points are credited. Stored here so any client can read it without

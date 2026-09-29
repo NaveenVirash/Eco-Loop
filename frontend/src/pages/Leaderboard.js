@@ -68,7 +68,7 @@ const Leaderboard = () => {
                       )}
                     </div>
                     <div className="lb-points">
-                      {u.points} pts
+                      {u.weeklyPoints ?? u.points} pts this week
                     </div>
                   </div>
                 );
