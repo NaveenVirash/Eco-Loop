@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { productAPI, messageAPI } from '../utils/api';
 import { AuthContext } from '../context/AuthContext';
 import UserMessages from './UserMessages';
@@ -7,6 +7,7 @@ import './Dashboard.css';
 
 export default function CompanyDashboard() {
   const { user, updateUserProfile } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -280,7 +281,7 @@ export default function CompanyDashboard() {
                 <h2>Upload New Offer/Ad</h2>
                 <button
                   className="btn-toggle"
-                  onClick={() => window.location.href = '/post'}
+                  onClick={() => navigate('/post')}
                 >
                   + Post Ad
                 </button>

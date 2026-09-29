@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react'; // Touch to recompile
+import { useNavigate } from 'react-router-dom';
 import { productAPI } from '../utils/api';
 import { AuthContext } from '../context/AuthContext';
 import UserMessages from './UserMessages';
@@ -6,6 +7,7 @@ import './Dashboard.css';
 
 export default function UserDashboard() {
   const { user, loading: authLoading, updateUserProfile } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -198,7 +200,7 @@ export default function UserDashboard() {
                 <h2>Upload New Product</h2>
                 <button
                   className="btn-toggle"
-                  onClick={() => window.location.href = '/post'}
+                  onClick={() => navigate('/post')}
                 >
                   + Post Ad
                 </button>
