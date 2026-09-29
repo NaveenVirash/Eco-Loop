@@ -142,7 +142,7 @@ const HomePage = () => {
               <p className="step-desc">
                 Upload photos and details of items you want to share or sell.
               </p>
-              <div className="step-pts">⭐ 10 pts</div>
+              <div className="step-pts">⭐ </div>
             </div>
             <div className="step">
               <div className="step-n">02</div>
@@ -151,7 +151,7 @@ const HomePage = () => {
               <p className="step-desc">
                 Community members browse and connect with your offerings.
               </p>
-              <div className="step-pts">⭐ 5 pts</div>
+              <div className="step-pts">⭐ </div>
             </div>
             <div className="step">
               <div className="step-n">03</div>
@@ -169,7 +169,106 @@ const HomePage = () => {
               <p className="step-desc">
                 Receive points, get verified badges, and items go to recyclers.
               </p>
-              <div className="step-pts">⭐ 20 pts</div>
+              <div className="step-pts">⭐ </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* HOW POINTS WORK */}
+      <section className="sec pts-sec" id="points">
+        <div className="wrap">
+          <div className="sec-kicker">
+            <span className="chip chip-g">⭐ Rewards</span>
+          </div>
+          <h2 className="sec-title">How Points Work</h2>
+          <p className="sec-sub">
+            Earn points by contributing to the community and unlock badges along the way!
+          </p>
+
+          <div className="pts-layout">
+            {/* ── Earning actions ── */}
+            <div className="pts-card">
+              <p className="pts-card-label">Earn Points</p>
+              <div className="pts-rows">
+                <div className="pts-row">
+                  <div className="pts-row-left">
+                    <span className="pts-icon">🏷️</span>
+                    <div>
+                      <div className="pts-row-title">Marketplace Donation</div>
+                      <div className="pts-row-sub">Awarded after pickup is confirmed by both parties</div>
+                    </div>
+                  </div>
+                  <span className="pts-badge">+10 pts</span>
+                </div>
+                <div className="pts-row">
+                  <div className="pts-row-left">
+                    <span className="pts-icon">♻️</span>
+                    <div>
+                      <div className="pts-row-title">Contact a Recycling Center</div>
+                      <div className="pts-row-sub">Awarded instantly upon posting</div>
+                    </div>
+                  </div>
+                  <span className="pts-badge">+5 pts</span>
+                </div>
+                <div className="pts-row">
+                  <div className="pts-row-left">
+                    <span className="pts-icon">🚚</span>
+                    <div>
+                      <div className="pts-row-title">Collector Bonus</div>
+                      <div className="pts-row-sub">Earned by the collector who picks up your item</div>
+                    </div>
+                  </div>
+                  <span className="pts-badge">+5 pts</span>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Badge tiers ── */}
+            <div className="pts-card">
+              <p className="pts-card-label">Badge Tiers</p>
+              <div className="badge-tiers">
+                <div className="badge-tier">
+                  <div className="badge-tier-icon" style={{ background: '#E8F5EF' }}>🌱</div>
+                  <div className="badge-tier-info">
+                    <div className="badge-tier-name">Eco Starter</div>
+                    <div className="badge-tier-range">0 – 24 pts</div>
+                  </div>
+                  <div className="badge-tier-bar">
+                    <div className="badge-tier-fill" style={{ width: '15%', background: '#5EC99A' }}></div>
+                  </div>
+                </div>
+                <div className="badge-tier">
+                  <div className="badge-tier-icon" style={{ background: '#D4EDDA' }}>🌿</div>
+                  <div className="badge-tier-info">
+                    <div className="badge-tier-name">Green Hero</div>
+                    <div className="badge-tier-range">25 – 74 pts</div>
+                  </div>
+                  <div className="badge-tier-bar">
+                    <div className="badge-tier-fill" style={{ width: '40%', background: '#1E9B6B' }}></div>
+                  </div>
+                </div>
+                <div className="badge-tier">
+                  <div className="badge-tier-icon" style={{ background: '#FBF0DA' }}>🏆</div>
+                  <div className="badge-tier-info">
+                    <div className="badge-tier-name">Top Fan</div>
+                    <div className="badge-tier-range">75 – 149 pts</div>
+                  </div>
+                  <div className="badge-tier-bar">
+                    <div className="badge-tier-fill" style={{ width: '68%', background: '#C88A15' }}></div>
+                  </div>
+                </div>
+                <div className="badge-tier">
+                  <div className="badge-tier-icon" style={{ background: '#E8F0FB' }}>🌍</div>
+                  <div className="badge-tier-info">
+                    <div className="badge-tier-name">Eco Champion</div>
+                    <div className="badge-tier-range">150+ pts</div>
+                  </div>
+                  <div className="badge-tier-bar">
+                    <div className="badge-tier-fill" style={{ width: '100%', background: '#2A76D4' }}></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
