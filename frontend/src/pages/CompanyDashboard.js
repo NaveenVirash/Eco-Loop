@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import { productAPI } from '../utils/api';
 import { AuthContext } from '../context/AuthContext';
 import UserMessages from './UserMessages';
@@ -424,8 +425,8 @@ export default function CompanyDashboard() {
                       Owner: {product?.user?.name || 'Unknown User'} ({product?.user?.email || 'No email'})
                     </p>
                     <div style={{ marginTop: '12px' }}>
-                      <a
-                        href={`/product/${product._id}`}
+                      <Link
+                        to={`/product/${product._id}`}
                         style={{
                           display: 'inline-block',
                           background: 'var(--g)',
@@ -437,8 +438,8 @@ export default function CompanyDashboard() {
                           fontWeight: 'bold'
                         }}
                       >
-                        View Details & Contact
-                      </a>
+                        View Details &amp; Contact
+                      </Link>
                     </div>
                   </div>
                 ))}

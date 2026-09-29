@@ -355,7 +355,7 @@ export default function ProductDetail() {
                 </div>
               ) : (
                 <>
-                  {product.listingType === 'marketplace' && (
+                  {product.listingType === 'marketplace' && !isExpired && (
                     <div style={{ marginBottom: '16px', padding: '12px', border: '1px solid #e6f4ea', borderRadius: '8px', background: '#f7fcf8' }}>
                       <h4 style={{ margin: '0 0 6px', fontSize: '15px' }}>🤝 Dual Confirmation</h4>
                       <p style={{ margin: '0 0 10px', fontSize: '13px', color: '#47624a' }}>
