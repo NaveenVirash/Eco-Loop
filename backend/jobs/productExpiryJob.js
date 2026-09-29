@@ -6,7 +6,8 @@ const expireProducts = async () => {
         const result = await Product.updateMany(
             {
                 expiresAt: { $lte: new Date() },
-                isExpired: false
+                isExpired: false,
+                status: 'active' // Don't touch listings already in a collection workflow
             },
             {
                 $set: {

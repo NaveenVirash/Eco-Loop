@@ -10,14 +10,10 @@ const { RECYCLING_POST_POINTS, DONOR_POINTS, COLLECTOR_POINTS, awardPointsAndBad
 // @access  Public
 exports.getProducts = async (req, res, next) => {
     try {
-        // Public browse only shows MARKETPLACE listings that are active.
-        // Recycling ("Contact Recycling Center") posts go exclusively to
-        // companies via GET /api/products/recycling.
-        // Completed listings are soft-deleted (hidden) but preserved for reports.
         const products = await Product.find({
             listingType: 'marketplace',
-            status: { $ne: 'completed' },
-            isExpired: false
+            status: 'active',
+            expiresAt: { $gt: new Date() } // අනාගතයේ Expire වන ඒවා පමණි
         }).populate({
             path: 'user',
             select: 'name email points'
@@ -29,10 +25,7 @@ exports.getProducts = async (req, res, next) => {
             data: products
         });
     } catch (err) {
-        res.status(400).json({
-            success: false,
-            error: err.message
-        });
+        res.status(400).json({ success: false, error: err.message });
     }
 };
 
@@ -110,22 +103,27 @@ exports.createProduct = async (req, res, next) => {
 
 // @desc    Mark expired products (cron job target)
 // @route   Internal Cron Job
-exports.expireProducts = async () => {
+exports.getExpiredProducts = async (req, res, next) => {
     try {
-        await Product.updateMany(
-            {
-                expiresAt: { $lte: new Date() },
-                isExpired: false,
-                status: 'active' // Don't touch listings already in a workflow
-            },
-            {
-                $set: { isExpired: true }
-            }
-        );
+        const products = await Product.find({
+            listingType: 'marketplace',
+            status: 'active',
+            $or: [
+                { isExpired: true },
+                { expiresAt: { $lte: new Date() } } // Expire වූ සැනින් මෙතනට එයි
+            ]
+        }).populate({
+            path: 'user',
+            select: 'name email phone points address'
+        }).sort('-expiresAt');
 
-        console.log('Expired products updated');
+        res.status(200).json({
+            success: true,
+            count: products.length,
+            data: products
+        });
     } catch (err) {
-        console.error(err);
+        res.status(400).json({ success: false, error: err.message });
     }
 };
 
@@ -366,7 +364,7 @@ exports.claimCollection = async (req, res, next) => {
     try {
         const product = await Product.findById(req.params.id);
         if (!product) return res.status(404).json({ success: false, error: 'Product not found' });
-        
+
         if (product.user.toString() === req.user.id) {
             return res.status(400).json({ success: false, error: 'You cannot claim your own product' });
         }
