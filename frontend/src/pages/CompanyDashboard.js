@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { productAPI, messageAPI } from '../utils/api';
 import { AuthContext } from '../context/AuthContext';
 import UserMessages from './UserMessages';
@@ -7,6 +7,7 @@ import './Dashboard.css';
 
 export default function CompanyDashboard() {
   const { user, updateUserProfile } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -105,6 +106,16 @@ export default function CompanyDashboard() {
     setModalMsgBody('');
     setModalMsgSuccess('');
     setModalMsgError('');
+  };
+
+  const handleRemoveExpiredProduct = async (productId) => {
+    if (!window.confirm('Remove this expired item from the recycling list? This action cannot be undone.')) return;
+    try {
+      await productAPI.delete(productId);
+      setExpiredProducts(prev => prev.filter(p => p._id !== productId));
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to remove item. Please try again.');
+    }
   };
 
   const handleModalSendMessage = async (e) => {
@@ -270,7 +281,7 @@ export default function CompanyDashboard() {
                 <h2>Upload New Offer/Ad</h2>
                 <button
                   className="btn-toggle"
-                  onClick={() => window.location.href = '/post'}
+                  onClick={() => navigate('/post')}
                 >
                   + Post Ad
                 </button>
@@ -470,23 +481,38 @@ export default function CompanyDashboard() {
                     <p className="product-user">
                       Owner: {product?.user?.name || 'Unknown User'} ({product?.user?.email || 'No email'})
                     </p>
-                    <div style={{ marginTop: '12px' }}>
+                    <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
                       <button
                         onClick={() => openExpiredModal(product)}
                         style={{
+                          flex: 1,
                           background: 'var(--g, #1E9B6B)',
                           color: 'white',
                           border: 'none',
-                          padding: '8px 16px',
+                          padding: '8px 12px',
                           borderRadius: '6px',
                           fontSize: '13px',
                           fontWeight: 'bold',
-                          cursor: 'pointer',
-                          width: '100%',
-                          marginTop: '4px'
+                          cursor: 'pointer'
                         }}
                       >
-                        📋 View Details &amp; Contact Owner
+                        📋 View Details
+                      </button>
+                      <button
+                        onClick={() => handleRemoveExpiredProduct(product._id)}
+                        style={{
+                          flex: 1,
+                          background: '#FAECE5',
+                          color: '#D45A2A',
+                          border: '1px solid #D45A2A',
+                          padding: '8px 12px',
+                          borderRadius: '6px',
+                          fontSize: '13px',
+                          fontWeight: 'bold',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        🗑️ Remove
                       </button>
                     </div>
                   </div>

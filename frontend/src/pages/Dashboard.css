@@ -6,17 +6,20 @@
 
 .dashboard-header {
   margin-bottom: 40px;
+  margin-top: 80px;
 }
 
 .dashboard-header h1 {
   font-size: 32px;
   color: #1A1A18;
   margin-bottom: 8px;
+  margin-top: 80px;
 }
 
 .dashboard-header p {
   font-size: 16px;
   color: #5A5A56;
+  margin-top: 80px;
 }
 
 .error-banner {
@@ -502,10 +505,12 @@
     transform: scale(1);
     box-shadow: 0 4px 12px rgba(247, 107, 28, 0.3);
   }
+
   50% {
     transform: scale(1.03);
     box-shadow: 0 4px 20px rgba(247, 107, 28, 0.6);
   }
+
   100% {
     transform: scale(1);
     box-shadow: 0 4px 12px rgba(247, 107, 28, 0.3);
@@ -757,7 +762,7 @@
   background: #fff;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -769,7 +774,7 @@
 
 .admin-stat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .stat-number {
@@ -861,13 +866,20 @@
   max-width: 95vw;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: modal-slide-up 0.25s ease;
 }
 
 @keyframes modal-slide-up {
-  from { transform: translateY(40px); opacity: 0; }
-  to   { transform: translateY(0);   opacity: 1; }
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .user-modal {
@@ -900,12 +912,12 @@
   font-size: 26px;
   font-weight: bold;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(30,155,107,0.25);
+  box-shadow: 0 4px 12px rgba(30, 155, 107, 0.25);
 }
 
 .company-modal .apm-avatar {
   background: linear-gradient(135deg, #2A76D4, #1A5AAA);
-  box-shadow: 0 4px 12px rgba(42,118,212,0.25);
+  box-shadow: 0 4px 12px rgba(42, 118, 212, 0.25);
 }
 
 .apm-title {
@@ -1069,9 +1081,11 @@
   .apm-details-grid {
     grid-template-columns: 1fr;
   }
+
   .apm-actions {
     flex-direction: column;
   }
+
   .apm-btn {
     min-width: unset;
   }
@@ -1092,7 +1106,7 @@
   font-size: 13px;
   font-weight: 700;
   color: #1A1A18;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 /* Points Breakdown in Profile Details */
@@ -1228,7 +1242,7 @@
 
 .leaderboard-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .leaderboard-item.is-me {
@@ -1248,19 +1262,31 @@
   background: linear-gradient(135deg, #FFF8D6, #FFF2A8);
   border-color: #FAD961;
 }
-.rank-gold .lb-rank { color: #C47B14; font-size: 18px; }
+
+.rank-gold .lb-rank {
+  color: #C47B14;
+  font-size: 18px;
+}
 
 .rank-silver {
   background: linear-gradient(135deg, #F8F9FA, #E9ECEF);
   border-color: #CED4DA;
 }
-.rank-silver .lb-rank { color: #6C757D; font-size: 18px; }
+
+.rank-silver .lb-rank {
+  color: #6C757D;
+  font-size: 18px;
+}
 
 .rank-bronze {
   background: linear-gradient(135deg, #FFF0E6, #FFE0CC);
   border-color: #FFB380;
 }
-.rank-bronze .lb-rank { color: #D45A2A; font-size: 18px; }
+
+.rank-bronze .lb-rank {
+  color: #D45A2A;
+  font-size: 18px;
+}
 
 .lb-avatar {
   width: 44px;
@@ -1307,18 +1333,22 @@
     padding: 12px;
     gap: 12px;
   }
+
   .lb-rank {
     width: 50px;
     font-size: 14px;
   }
+
   .lb-avatar {
     width: 36px;
     height: 36px;
     font-size: 16px;
   }
+
   .lb-name {
     font-size: 14px;
   }
+
   .lb-points {
     font-size: 16px;
   }

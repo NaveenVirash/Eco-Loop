@@ -395,9 +395,13 @@ const PostAd = () => {
                 <p>Your item is now live in the marketplace. You'll earn <strong>10 Eco-Points</strong> when a collector picks it up and both of you confirm.</p>
               </>
             )}
-            <button className="btn btn-g btn-lg" style={{width: '100%', marginTop: '20px'}} onClick={() => navigate('/products')}>
-              Continue to Products
-            </button>
+            <button
+                className="btn btn-g btn-lg"
+                style={{width: '100%', marginTop: '20px'}}
+                onClick={() => navigate(user?.role === 'user' ? '/products' : '/dashboard')}
+              >
+                {user?.role === 'user' ? 'Continue to Products' : 'Back to Dashboard'}
+              </button>
           </div>
         </div>
       )}
