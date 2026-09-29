@@ -142,7 +142,9 @@ exports.reactivateProduct = async (req, res, next) => {
     }
 };
 
-// @desc    Delete product (hard delete — only for active listings by owner/admin)
+// @desc    Delete product
+//          - Active (non-expired) listings: only owner or admin
+//          - Expired listings: only recycling partners (company role)
 // @route   DELETE /api/products/:id
 // @access  Private
 exports.deleteProduct = async (req, res, next) => {
@@ -157,14 +159,28 @@ exports.deleteProduct = async (req, res, next) => {
             });
         }
 
-        if (
-            product.user.toString() !== req.user.id &&
-            req.user.role !== 'admin'
-        ) {
-            return res.status(401).json({
-                success: false,
-                error: 'Not authorized to delete this product'
-            });
+        const isExpired =
+            product.isExpired || (product.expiresAt && product.expiresAt <= new Date());
+
+        if (isExpired) {
+            // Expired items may only be removed by recycling partners
+            if (req.user.role !== 'company') {
+                return res.status(403).json({
+                    success: false,
+                    error: 'Only recycling partners can remove expired items'
+                });
+            }
+        } else {
+            // Active items may only be removed by the owner or an admin
+            if (
+                product.user.toString() !== req.user.id &&
+                req.user.role !== 'admin'
+            ) {
+                return res.status(401).json({
+                    success: false,
+                    error: 'Not authorized to delete this product'
+                });
+            }
         }
 
         // Prevent deleting a listing that is in the middle of a collection workflow
