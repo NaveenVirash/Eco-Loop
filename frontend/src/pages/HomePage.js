@@ -160,7 +160,7 @@ const HomePage = () => {
               <p className="step-desc">
                 Chat with buyers and arrange pickup or delivery.
               </p>
-              <div className="step-pts">⭐ 15 pts</div>
+              <div className="step-pts">⭐ </div>
             </div>
             <div className="step">
               <div className="step-n">04</div>

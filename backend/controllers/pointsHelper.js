@@ -50,10 +50,10 @@ const computeBadge = (points) => {
  * @returns {Promise<{ newPoints: number, badge: string }>}
  */
 const awardPointsAndBadge = async (userId, pointsToAdd) => {
-    // Step 1: atomically increment points
+    // Step 1: atomically increment points and weeklyPoints
     const updated = await User.findByIdAndUpdate(
         userId,
-        { $inc: { points: pointsToAdd } },
+        { $inc: { points: pointsToAdd, weeklyPoints: pointsToAdd } },
         { returnDocument: 'after' }
     );
 

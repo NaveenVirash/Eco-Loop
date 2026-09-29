@@ -123,13 +123,13 @@ export default function UserDashboard() {
   const myRecyclingCount = myProducts.filter(p => p.listingType === 'recycling').length;
 
   const currentPoints = user?.points || 0;
-  
+
   // Badge Logic
   let badgeName = 'Eco Starter';
   let badgeIcon = '🌱';
   let nextBadge = 'Green Hero';
   let nextThreshold = 25;
-  
+
   if (currentPoints >= 150) {
     badgeName = 'Eco Champion';
     badgeIcon = '🌍';
@@ -146,7 +146,7 @@ export default function UserDashboard() {
     nextBadge = 'Top Fan';
     nextThreshold = 75;
   }
-  
+
   const prevThreshold = nextThreshold === 25 ? 0 : (nextThreshold === 75 ? 25 : (nextThreshold === 150 ? 75 : 150));
   const pointsInCurrentTier = currentPoints - prevThreshold;
   const tierSize = nextThreshold - prevThreshold;
@@ -314,7 +314,7 @@ export default function UserDashboard() {
                     <span className="detail-label">Member Since</span>
                     <span className="detail-value">{user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</span>
                   </div>
-                  
+
                   <div className="points-breakdown">
                     <div className="pb-item">
                       <span className="pb-icon">🛒</span>
@@ -359,7 +359,7 @@ export default function UserDashboard() {
                 </div>
               </section>
 
-              {/* How Points Work Card */}
+              {/* How Points Work Card 
               <section className="dashboard-section hpw-card">
                 <h3>ℹ️ How Points Work</h3>
                 <p>Earn points by contributing to the community and unlocking badges!</p>
@@ -374,7 +374,7 @@ export default function UserDashboard() {
                   <div className="hpw-badge"><span>🏆 Top Fan</span> <small>75-149 pts</small></div>
                   <div className="hpw-badge"><span>🌍 Eco Champion</span> <small>150+ pts</small></div>
                 </div>
-              </section>
+              </section> */}
             </div>
 
             {/* Edit Profile Form */}
@@ -440,7 +440,7 @@ export default function UserDashboard() {
                 <input
                   type="text"
                   value={editingProduct.title}
-                  onChange={e => setEditingProduct({...editingProduct, title: e.target.value})}
+                  onChange={e => setEditingProduct({ ...editingProduct, title: e.target.value })}
                   required
                   style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
                 />
@@ -449,7 +449,7 @@ export default function UserDashboard() {
                 <label>Category</label>
                 <select
                   value={editingProduct.category}
-                  onChange={e => setEditingProduct({...editingProduct, category: e.target.value})}
+                  onChange={e => setEditingProduct({ ...editingProduct, category: e.target.value })}
                   required
                   style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
                 >
@@ -464,7 +464,7 @@ export default function UserDashboard() {
                 <label>Description</label>
                 <textarea
                   value={editingProduct.description}
-                  onChange={e => setEditingProduct({...editingProduct, description: e.target.value})}
+                  onChange={e => setEditingProduct({ ...editingProduct, description: e.target.value })}
                   required
                   style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
                 />
@@ -474,7 +474,7 @@ export default function UserDashboard() {
                 <input
                   type="text"
                   value={editingProduct.price || ''}
-                  onChange={e => setEditingProduct({...editingProduct, price: e.target.value})}
+                  onChange={e => setEditingProduct({ ...editingProduct, price: e.target.value })}
                   style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
                 />
               </div>

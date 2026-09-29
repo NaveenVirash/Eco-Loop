@@ -16,14 +16,14 @@ exports.getUsers = async (req, res, next) => {
     }
 };
 
-// @desc    Get top 10 users by points
+// @desc    Get top 10 users by weekly points
 // @route   GET /api/users/leaderboard
 // @access  Public
 exports.getLeaderboard = async (req, res, next) => {
     try {
         const topUsers = await User.find({ role: 'user', status: 'active' })
-            .select('name points createdAt averageRating ratingCount')
-            .sort({ points: -1 })
+            .select('name points weeklyPoints createdAt averageRating ratingCount')
+            .sort({ weeklyPoints: -1 })
             .limit(10);
         res.status(200).json({
             success: true,
