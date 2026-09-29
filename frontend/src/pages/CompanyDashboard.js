@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { productAPI } from '../utils/api';
+import { productAPI, messageAPI } from '../utils/api';
 import { AuthContext } from '../context/AuthContext';
 import UserMessages from './UserMessages';
 import './Dashboard.css';
@@ -26,6 +26,13 @@ export default function CompanyDashboard() {
 
   const [expiredProducts, setExpiredProducts] = useState([]);
   const [expiredLoading, setExpiredLoading] = useState(false);
+
+  // Expired item detail modal
+  const [selectedExpiredProduct, setSelectedExpiredProduct] = useState(null);
+  const [modalMsgBody, setModalMsgBody] = useState('');
+  const [modalMsgLoading, setModalMsgLoading] = useState(false);
+  const [modalMsgSuccess, setModalMsgSuccess] = useState('');
+  const [modalMsgError, setModalMsgError] = useState('');
 
   // Recycling center posts ("Contact Recycling Center" listings)
   const [recyclingProducts, setRecyclingProducts] = useState([]);
@@ -82,6 +89,45 @@ export default function CompanyDashboard() {
       console.error('Failed to fetch recycling listings:', err);
     } finally {
       setRecyclingLoading(false);
+    }
+  };
+
+  // ── Expired item modal message sender ──────────────────────────────────
+  const openExpiredModal = (product) => {
+    setSelectedExpiredProduct(product);
+    setModalMsgBody('');
+    setModalMsgSuccess('');
+    setModalMsgError('');
+  };
+
+  const closeExpiredModal = () => {
+    setSelectedExpiredProduct(null);
+    setModalMsgBody('');
+    setModalMsgSuccess('');
+    setModalMsgError('');
+  };
+
+  const handleModalSendMessage = async (e) => {
+    e.preventDefault();
+    if (!modalMsgBody.trim()) {
+      setModalMsgError('Message cannot be empty.');
+      return;
+    }
+    setModalMsgLoading(true);
+    setModalMsgSuccess('');
+    setModalMsgError('');
+    try {
+      await messageAPI.sendMessage(
+        selectedExpiredProduct.user._id,
+        `Recycling Pickup: ${selectedExpiredProduct.title}`,
+        modalMsgBody
+      );
+      setModalMsgSuccess('Message sent! The owner will be notified.');
+      setModalMsgBody('');
+    } catch (err) {
+      setModalMsgError(err.response?.data?.error || 'Failed to send message. Please try again.');
+    } finally {
+      setModalMsgLoading(false);
     }
   };
 
@@ -425,21 +471,23 @@ export default function CompanyDashboard() {
                       Owner: {product?.user?.name || 'Unknown User'} ({product?.user?.email || 'No email'})
                     </p>
                     <div style={{ marginTop: '12px' }}>
-                      <Link
-                        to={`/product/${product._id}`}
+                      <button
+                        onClick={() => openExpiredModal(product)}
                         style={{
-                          display: 'inline-block',
-                          background: 'var(--g)',
+                          background: 'var(--g, #1E9B6B)',
                           color: 'white',
-                          padding: '6px 12px',
-                          borderRadius: '4px',
-                          textDecoration: 'none',
+                          border: 'none',
+                          padding: '8px 16px',
+                          borderRadius: '6px',
                           fontSize: '13px',
-                          fontWeight: 'bold'
+                          fontWeight: 'bold',
+                          cursor: 'pointer',
+                          width: '100%',
+                          marginTop: '4px'
                         }}
                       >
-                        View Details &amp; Contact
-                      </Link>
+                        📋 View Details &amp; Contact Owner
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -573,6 +621,135 @@ export default function CompanyDashboard() {
           </div>
         )}
       </div>
+
+      {/* ── Expired Item Detail & Contact Modal ───────────────────────────── */}
+      {selectedExpiredProduct && (
+        <div
+          className="modal-overlay"
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '20px' }}
+          onClick={(e) => { if (e.target === e.currentTarget) closeExpiredModal(); }}
+        >
+          <div style={{ background: '#fff', borderRadius: '14px', width: '100%', maxWidth: '620px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }}>
+
+            {/* Modal Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '24px 24px 16px', borderBottom: '1px solid #eee' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                  <span style={{ background: '#FFF3CD', color: '#856404', fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>⏰ Expired — Ready for Recycling</span>
+                  <span style={{ background: '#E8F5EF', color: '#1E9B6B', fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px', textTransform: 'uppercase' }}>{selectedExpiredProduct.category}</span>
+                </div>
+                <h2 style={{ margin: 0, fontSize: '20px', color: '#1A1A18' }}>{selectedExpiredProduct.title}</h2>
+              </div>
+              <button
+                onClick={closeExpiredModal}
+                style={{ background: '#f0f0f0', border: 'none', borderRadius: '50%', width: '34px', height: '34px', cursor: 'pointer', fontSize: '18px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+              {/* Product Image */}
+              {selectedExpiredProduct.imageUrl && (
+                <div style={{ borderRadius: '10px', overflow: 'hidden', maxHeight: '240px' }}>
+                  <img
+                    src={selectedExpiredProduct.imageUrl}
+                    alt={selectedExpiredProduct.title}
+                    style={{ width: '100%', height: '240px', objectFit: 'cover', display: 'block' }}
+                  />
+                </div>
+              )}
+
+              {/* Description */}
+              <div style={{ background: '#F9F9F7', borderRadius: '10px', padding: '16px' }}>
+                <p style={{ margin: '0 0 6px', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', color: '#888', letterSpacing: '0.5px' }}>Description</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#333', lineHeight: 1.6 }}>{selectedExpiredProduct.description}</p>
+              </div>
+
+              {/* Item Details Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                {[
+                  { label: '📅 Expired On', value: new Date(selectedExpiredProduct.expiresAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) },
+                  { label: '📅 Originally Posted', value: new Date(selectedExpiredProduct.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) },
+                  { label: '💰 Listed Price', value: selectedExpiredProduct.price === 'Free' ? 'Free' : `$${selectedExpiredProduct.price}` },
+                  { label: '📍 Location', value: selectedExpiredProduct.location || 'Not specified' },
+                ].map(({ label, value }) => (
+                  <div key={label} style={{ background: '#F9F9F7', borderRadius: '8px', padding: '12px' }}>
+                    <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</p>
+                    <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#1A1A18' }}>{value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Owner Contact Card */}
+              <div style={{ background: '#E8F5EF', border: '1px solid #C3E6D8', borderRadius: '10px', padding: '16px' }}>
+                <p style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 700, color: '#1E9B6B', textTransform: 'uppercase', letterSpacing: '0.5px' }}>👤 Item Owner</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
+                    <span style={{ fontSize: '14px', color: '#555' }}>Name</span>
+                    <strong style={{ fontSize: '14px', color: '#1A1A18' }}>{selectedExpiredProduct.user?.name || 'Unknown'}</strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
+                    <span style={{ fontSize: '14px', color: '#555' }}>📧 Email</span>
+                    <a href={`mailto:${selectedExpiredProduct.user?.email}`} style={{ fontSize: '14px', color: '#1E9B6B', fontWeight: 600, textDecoration: 'none' }}>{selectedExpiredProduct.user?.email || 'Not available'}</a>
+                  </div>
+                  {selectedExpiredProduct.user?.phone && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
+                      <span style={{ fontSize: '14px', color: '#555' }}>📞 Phone</span>
+                      <a href={`tel:${selectedExpiredProduct.user.phone}`} style={{ fontSize: '14px', color: '#1E9B6B', fontWeight: 600, textDecoration: 'none' }}>{selectedExpiredProduct.user.phone}</a>
+                    </div>
+                  )}
+                  {selectedExpiredProduct.user?.address && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
+                      <span style={{ fontSize: '14px', color: '#555' }}>📍 Address</span>
+                      <span style={{ fontSize: '14px', color: '#1A1A18', fontWeight: 600, textAlign: 'right' }}>{selectedExpiredProduct.user.address}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* In-Dashboard Message Form */}
+              <div style={{ background: '#F5F5F3', borderRadius: '10px', padding: '16px' }}>
+                <p style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 700, color: '#333', textTransform: 'uppercase', letterSpacing: '0.5px' }}>💬 Send a Message to Owner</p>
+                <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#666' }}>Arrange a pickup time, ask about the item condition, or discuss recycling logistics.</p>
+
+                {modalMsgSuccess && (
+                  <div style={{ background: '#E8F5EF', color: '#1E9B6B', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, marginBottom: '12px', borderLeft: '3px solid #1E9B6B' }}>
+                    ✅ {modalMsgSuccess}
+                  </div>
+                )}
+                {modalMsgError && (
+                  <div style={{ background: '#FAECE5', color: '#D45A2A', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, marginBottom: '12px', borderLeft: '3px solid #D45A2A' }}>
+                    ⚠️ {modalMsgError}
+                  </div>
+                )}
+
+                <form onSubmit={handleModalSendMessage}>
+                  <div style={{ marginBottom: '10px', background: '#fff', borderRadius: '6px', padding: '10px 12px', border: '1px solid #ddd', fontSize: '13px', color: '#888' }}>
+                    <strong style={{ color: '#555' }}>Subject:</strong> Recycling Pickup: {selectedExpiredProduct.title}
+                  </div>
+                  <textarea
+                    value={modalMsgBody}
+                    onChange={(e) => setModalMsgBody(e.target.value)}
+                    placeholder="Hi, we are interested in collecting this item for recycling. Can we arrange a pickup at..."
+                    rows={4}
+                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={modalMsgLoading}
+                    style={{ marginTop: '10px', background: '#1E9B6B', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: 700, cursor: modalMsgLoading ? 'not-allowed' : 'pointer', opacity: modalMsgLoading ? 0.7 : 1, width: '100%' }}
+                  >
+                    {modalMsgLoading ? '⏳ Sending...' : '📨 Send Message'}
+                  </button>
+                </form>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Product Modal */}
       {editingProduct && (
