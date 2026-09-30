@@ -12,7 +12,7 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Message Form State
   const [messageSubject, setMessageSubject] = useState('');
   const [messageBody, setMessageBody] = useState('');
@@ -55,7 +55,7 @@ export default function ProductDetail() {
       navigate('/login');
       return;
     }
-    
+
     if (!messageBody.trim()) {
       setMessageError('Message content cannot be empty.');
       return;
@@ -163,7 +163,7 @@ export default function ProductDetail() {
   const expires = new Date(product.expiresAt);
   const created = new Date(product.createdAt);
   const now = new Date();
-  
+
   const totalDuration = expires.getTime() - created.getTime();
   const timeRemaining = expires.getTime() - now.getTime();
   const isExpired = product.isExpired || timeRemaining <= 0;
@@ -233,7 +233,7 @@ export default function ProductDetail() {
                 </div>
                 <div className="pd-detail-item">
                   <span className="label">Price</span>
-                  <span className="value highlight">{product.price === 'Free' ? 'Free' : `$${product.price}`}</span>
+                  <span className="value highlight">{product.price === 'Free' ? 'Free' : `Rs.${product.price}`}</span>
                 </div>
               </div>
 
@@ -305,7 +305,7 @@ export default function ProductDetail() {
               {product.user?.averageRating > 0 && (
                 <div style={{ textAlign: 'center', marginBottom: '15px' }}>
                   <div style={{ fontSize: '18px', color: '#FFD700', marginBottom: '4px' }}>
-                    {'⭐'.repeat(Math.round(product.user.averageRating))} 
+                    {'⭐'.repeat(Math.round(product.user.averageRating))}
                   </div>
                   <span style={{ color: '#666', fontSize: '13px' }}>
                     {product.user.averageRating.toFixed(1)}/5 ({product.user.ratingCount} reviews)
@@ -315,7 +315,7 @@ export default function ProductDetail() {
 
               {user && user._id !== product.user?._id && (
                 <div style={{ textAlign: 'center', marginBottom: '15px' }}>
-                  <button 
+                  <button
                     onClick={() => setRatingModal(true)}
                     style={{ background: '#f0f0f0', border: '1px solid #ddd', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}
                   >
@@ -456,8 +456,8 @@ export default function ProductDetail() {
             <form onSubmit={handleRateSubmit}>
               <div style={{ marginBottom: '15px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}>Rating (1-5)</label>
-                <select 
-                  value={ratingValue} 
+                <select
+                  value={ratingValue}
                   onChange={(e) => setRatingValue(Number(e.target.value))}
                   style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
                 >
@@ -468,8 +468,8 @@ export default function ProductDetail() {
               </div>
               <div style={{ marginBottom: '15px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}>Comment (Optional)</label>
-                <textarea 
-                  value={ratingComment} 
+                <textarea
+                  value={ratingComment}
                   onChange={(e) => setRatingComment(e.target.value)}
                   style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd', minHeight: '80px' }}
                   placeholder="Leave a comment about this user..."
