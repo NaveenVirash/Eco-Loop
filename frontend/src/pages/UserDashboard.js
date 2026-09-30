@@ -1,22 +1,50 @@
-import React, { useState, useEffect, useContext } from 'react'; // Touch to recompile
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { productAPI } from '../utils/api';
+import { productAPI, transactionAPI } from '../utils/api';
 import { AuthContext } from '../context/AuthContext';
 import UserMessages from './UserMessages';
 import './Dashboard.css';
 
+// ─── Badge helper (mirrors pointsHelper.js thresholds) ──────────────────────
+const getBadgeInfo = (points) => {
+  if (points >= 150) return { name: 'Eco Champion', icon: '🌍', next: null, nextThreshold: 150 };
+  if (points >= 75)  return { name: 'Top Fan',      icon: '🏆', next: 'Eco Champion', nextThreshold: 150 };
+  if (points >= 25)  return { name: 'Green Hero',   icon: '🌿', next: 'Top Fan',      nextThreshold: 75  };
+  return                     { name: 'Eco Starter', icon: '🌱', next: 'Green Hero',   nextThreshold: 25  };
+};
+
+const PREV_THRESHOLDS = { 25: 0, 75: 25, 150: 75 };
+
+// ─── Small toast component ───────────────────────────────────────────────────
+const PointsToast = ({ message, onClose }) => (
+  <div className="points-toast" role="status" aria-live="polite">
+    <span>{message}</span>
+    <button onClick={onClose} className="points-toast-close" aria-label="Dismiss">✕</button>
+  </div>
+);
+
 export default function UserDashboard() {
-  const { user, loading: authLoading, updateUserProfile } = useContext(AuthContext);
+  const { user, loading: authLoading, updateUserProfile, refreshUser } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  // ── Listings state ──────────────────────────────────────────────────────────
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [confirmingId, setConfirmingId] = useState(null);
+  const [editingProduct, setEditingProduct] = useState(null);
 
-  // Tab control
+  // ── Transactions state ──────────────────────────────────────────────────────
+  const [transactions, setTransactions] = useState([]);
+  const [txLoading, setTxLoading] = useState(false);
+  const [txError, setTxError] = useState('');
+  const [confirmingTxId, setConfirmingTxId] = useState(null);
+  const [pointsToast, setPointsToast] = useState(null); // { message, badge }
+
+  // ── Tab ────────────────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState('listings');
 
-  // Profile Form State
+  // ── Profile form ────────────────────────────────────────────────────────────
   const [profileName, setProfileName] = useState('');
   const [profilePhone, setProfilePhone] = useState('');
   const [profileAddress, setProfileAddress] = useState('');
@@ -25,7 +53,7 @@ export default function UserDashboard() {
   const [profileError, setProfileError] = useState('');
   const [profileLoading, setProfileLoading] = useState(false);
 
-  // Sync profile form state when user changes
+  // Sync profile form when user changes
   useEffect(() => {
     if (user) {
       setProfileName(user.name || '');
@@ -41,6 +69,13 @@ export default function UserDashboard() {
     }
   }, [authLoading, user]);
 
+  // Auto-fetch transactions when that tab is opened
+  useEffect(() => {
+    if (activeTab === 'transactions') {
+      fetchTransactions();
+    }
+  }, [activeTab]);
+
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -54,6 +89,20 @@ export default function UserDashboard() {
     }
   };
 
+  const fetchTransactions = useCallback(async () => {
+    try {
+      setTxLoading(true);
+      setTxError('');
+      const res = await transactionAPI.getMyTransactions();
+      setTransactions(res.data.data);
+    } catch (err) {
+      setTxError(err.response?.data?.error || 'Failed to fetch transactions');
+    } finally {
+      setTxLoading(false);
+    }
+  }, []);
+
+  // ── Listings confirm pickup ──────────────────────────────────────────────────
   const handleConfirmPickup = async (productId) => {
     if (!window.confirm('Confirm that the collector picked up your item?')) return;
     try {
@@ -68,10 +117,40 @@ export default function UserDashboard() {
     }
   };
 
+  // ── Marketplace transaction confirms ────────────────────────────────────────
+  const handleTxConfirm = async (txId, role) => {
+    try {
+      setConfirmingTxId(txId);
+      let res;
+      if (role === 'buyer') {
+        res = await transactionAPI.confirmBuyer(txId);
+      } else {
+        res = await transactionAPI.confirmSeller(txId);
+      }
 
+      const result = res.data.completionResult;
+      if (result?.completed && !result?.alreadyAwarded) {
+        // Determine which result applies to the current user
+        const myResult = role === 'seller' ? result.donorResult : result.collectorResult;
+        if (myResult) {
+          const badgeMsg = myResult.badge !== user?.badge ? ` New badge: ${myResult.badge}!` : '';
+          setPointsToast({
+            message: `🎉 +${role === 'seller' ? 10 : 5} pts awarded! Total: ${myResult.newPoints} pts.${badgeMsg}`
+          });
+          // Refresh auth context so point count & badge update globally
+          await refreshUser();
+        }
+      }
 
-  const [editingProduct, setEditingProduct] = useState(null);
+      await fetchTransactions();
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to confirm transaction');
+    } finally {
+      setConfirmingTxId(null);
+    }
+  };
 
+  // ── Product CRUD ────────────────────────────────────────────────────────────
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
@@ -118,47 +197,45 @@ export default function UserDashboard() {
     }
   };
 
+  // ── Derived values ──────────────────────────────────────────────────────────
   const myProducts = products || [];
   const myMarketplaceCount = myProducts.filter(p => p.listingType !== 'recycling').length;
-  const myRecyclingCount = myProducts.filter(p => p.listingType === 'recycling').length;
+  const myRecyclingCount   = myProducts.filter(p => p.listingType === 'recycling').length;
 
   const currentPoints = user?.points || 0;
+  const badge = getBadgeInfo(currentPoints);
+  const prevThreshold = PREV_THRESHOLDS[badge.nextThreshold] ?? 0;
+  const pointsInTier  = currentPoints - prevThreshold;
+  const tierSize      = badge.nextThreshold - prevThreshold;
+  const pointsProgress = badge.next ? Math.min((pointsInTier / tierSize) * 100, 100) : 100;
 
-  // Badge Logic
-  let badgeName = 'Eco Starter';
-  let badgeIcon = '🌱';
-  let nextBadge = 'Green Hero';
-  let nextThreshold = 25;
+  // ── Transaction status helpers ──────────────────────────────────────────────
+  const txStatusInfo = (tx) => {
+    if (tx.status === 'completed')  return { label: '✅ Completed',   cls: 'tx-pill-completed' };
+    if (tx.status === 'rejected')   return { label: '❌ Rejected',    cls: 'tx-pill-rejected'  };
+    if (tx.status === 'cancelled')  return { label: '🚫 Cancelled',   cls: 'tx-pill-cancelled' };
+    if (tx.status === 'accepted')   return { label: '✔️ Accepted',   cls: 'tx-pill-accepted'  };
+    return                                 { label: '🕐 Requested',  cls: 'tx-pill-requested' };
+  };
 
-  if (currentPoints >= 150) {
-    badgeName = 'Eco Champion';
-    badgeIcon = '🌍';
-    nextBadge = null;
-    nextThreshold = 150;
-  } else if (currentPoints >= 75) {
-    badgeName = 'Top Fan';
-    badgeIcon = '🏆';
-    nextBadge = 'Eco Champion';
-    nextThreshold = 150;
-  } else if (currentPoints >= 25) {
-    badgeName = 'Green Hero';
-    badgeIcon = '🌿';
-    nextBadge = 'Top Fan';
-    nextThreshold = 75;
-  }
+  const isMe = (id) => id?.toString() === user?._id?.toString();
 
-  const prevThreshold = nextThreshold === 25 ? 0 : (nextThreshold === 75 ? 25 : (nextThreshold === 150 ? 75 : 150));
-  const pointsInCurrentTier = currentPoints - prevThreshold;
-  const tierSize = nextThreshold - prevThreshold;
-  const pointsProgress = nextBadge ? Math.min((pointsInCurrentTier / tierSize) * 100, 100) : 100;
-
+  // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <div className="dashboard-container">
+      {/* Points toast */}
+      {pointsToast && (
+        <PointsToast
+          message={pointsToast.message}
+          onClose={() => setPointsToast(null)}
+        />
+      )}
+
       <div className="dashboard-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
           <h1>Welcome, {user?.name}!</h1>
           <span className="badge-tier-chip">
-            {badgeIcon} {badgeName}
+            {badge.icon} {badge.name}
           </span>
         </div>
         <p>Manage your items, check rewards, and update your settings</p>
@@ -166,21 +243,31 @@ export default function UserDashboard() {
 
       {error && <div className="error-banner">{error}</div>}
 
+      {/* ── Tabs ── */}
       <div className="admin-tabs">
         <button
+          id="tab-listings"
           className={`tab-btn ${activeTab === 'listings' ? 'active' : ''}`}
           onClick={() => setActiveTab('listings')}
         >
           My Listings
         </button>
         <button
+          id="tab-transactions"
+          className={`tab-btn ${activeTab === 'transactions' ? 'active' : ''}`}
+          onClick={() => setActiveTab('transactions')}
+        >
+          🔄 Transactions
+        </button>
+        <button
+          id="tab-messages"
           className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
           onClick={() => setActiveTab('messages')}
         >
           💬 Messages
         </button>
-
         <button
+          id="tab-profile"
           className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
           onClick={() => {
             setActiveTab('profile');
@@ -193,15 +280,14 @@ export default function UserDashboard() {
       </div>
 
       <div className="dashboard-content" style={{ marginTop: '20px' }}>
-        {activeTab === 'listings' ? (
+
+        {/* ─── LISTINGS ─── */}
+        {activeTab === 'listings' && (
           <>
             <section className="dashboard-section">
               <div className="section-header">
                 <h2>Upload New Product</h2>
-                <button
-                  className="btn-toggle"
-                  onClick={() => navigate('/post')}
-                >
+                <button className="btn-toggle" onClick={() => navigate('/post')}>
                   + Post Ad
                 </button>
               </div>
@@ -214,7 +300,7 @@ export default function UserDashboard() {
               ) : (
                 <div className="products-grid">
                   {myProducts.map(product => {
-                    const isPending = product.status === 'pending_collection';
+                    const isPending   = product.status === 'pending_collection';
                     const isCompleted = product.status === 'completed';
                     return (
                       <div key={product._id} className="product-card">
@@ -259,10 +345,7 @@ export default function UserDashboard() {
                           >
                             Edit
                           </button>
-                          <button
-                            className="btn-delete"
-                            onClick={() => handleDelete(product._id)}
-                          >
+                          <button className="btn-delete" onClick={() => handleDelete(product._id)}>
                             Delete
                           </button>
                         </div>
@@ -273,9 +356,114 @@ export default function UserDashboard() {
               )}
             </section>
           </>
-        ) : activeTab === 'messages' ? (
-          <UserMessages />
-        ) : (
+        )}
+
+        {/* ─── TRANSACTIONS ─── */}
+        {activeTab === 'transactions' && (
+          <section className="dashboard-section">
+            <div className="section-header">
+              <h2>🔄 My Transactions</h2>
+              <button className="btn-toggle" onClick={fetchTransactions} style={{ fontSize: '13px' }}>
+                ↻ Refresh
+              </button>
+            </div>
+
+            {/* Points explainer */}
+            <div className="tx-points-explainer">
+              <div className="tx-pe-item"><span className="tx-pe-pts">+10 pts</span><span>for donating an item (seller — after both confirm)</span></div>
+              <div className="tx-pe-item"><span className="tx-pe-pts">+5 pts</span><span>for collecting an item (buyer — after both confirm)</span></div>
+            </div>
+
+            {txLoading ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: '#5A5A56' }}>Loading transactions…</div>
+            ) : txError ? (
+              <div className="error-banner">{txError}</div>
+            ) : transactions.length === 0 ? (
+              <p className="empty-state">No transactions yet. Browse the marketplace to request items!</p>
+            ) : (
+              <div className="tx-list">
+                {transactions.map(tx => {
+                  const iAmBuyer  = isMe(tx.buyer?._id);
+                  const iAmSeller = isMe(tx.seller?._id);
+                  const status = txStatusInfo(tx);
+
+                  const canConfirmBuyer  = iAmBuyer  && tx.status === 'accepted' && !tx.buyerConfirmed;
+                  const canConfirmSeller = iAmSeller && tx.status === 'accepted' && !tx.sellerConfirmed;
+                  const myConfirmed = iAmBuyer ? tx.buyerConfirmed : tx.sellerConfirmed;
+
+                  return (
+                    <div key={tx._id} className={`tx-card ${tx.status === 'completed' ? 'tx-card-done' : ''}`}>
+                      <div className="tx-card-header">
+                        <div className="tx-product-name">
+                          {tx.product?.title || 'Unknown product'}
+                        </div>
+                        <span className={`tx-status-pill ${status.cls}`}>{status.label}</span>
+                      </div>
+
+                      <div className="tx-card-meta">
+                        <span>
+                          {iAmBuyer
+                            ? <>Seller: <strong>{tx.seller?.name}</strong></>
+                            : <>Buyer: <strong>{tx.buyer?.name}</strong></>}
+                        </span>
+                        <span className="tx-role-chip">
+                          {iAmBuyer ? '🛒 You are the Buyer' : '📦 You are the Seller'}
+                        </span>
+                        <span style={{ color: '#9A9A96', fontSize: '12px' }}>
+                          {new Date(tx.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+
+                      {/* Dual-confirm progress */}
+                      {tx.status === 'accepted' && (
+                        <div className="tx-confirm-row">
+                          <div className={`tx-confirm-badge ${tx.sellerConfirmed ? 'confirmed' : ''}`}>
+                            {tx.sellerConfirmed ? '✔' : '○'} Seller confirmed
+                          </div>
+                          <div className={`tx-confirm-badge ${tx.buyerConfirmed ? 'confirmed' : ''}`}>
+                            {tx.buyerConfirmed ? '✔' : '○'} Buyer confirmed
+                          </div>
+                        </div>
+                      )}
+
+                      {tx.status === 'completed' && (
+                        <div className="tx-completed-banner">
+                          🌱 Transaction complete! Points have been awarded.
+                        </div>
+                      )}
+
+                      {/* Action button */}
+                      {(canConfirmBuyer || canConfirmSeller) && (
+                        <button
+                          id={`confirm-tx-${tx._id}`}
+                          className="tx-confirm-btn"
+                          disabled={confirmingTxId === tx._id}
+                          onClick={() => handleTxConfirm(tx._id, iAmBuyer ? 'buyer' : 'seller')}
+                        >
+                          {confirmingTxId === tx._id
+                            ? 'Saving…'
+                            : iAmBuyer ? '✅ Confirm I received this item' : '✅ Confirm I handed over this item'}
+                        </button>
+                      )}
+
+                      {tx.status === 'accepted' && myConfirmed && !tx.status === 'completed' && (
+                        <p className="tx-waiting-msg">
+                          ⏳ Waiting for the {iAmBuyer ? 'seller' : 'buyer'} to confirm…
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* ─── MESSAGES ─── */}
+        {activeTab === 'messages' && <UserMessages />}
+
+        {/* ─── PROFILE ─── */}
+        {activeTab === 'profile' && (
           <div className="profile-grid">
             {/* Profile Overview Card */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -287,14 +475,13 @@ export default function UserDashboard() {
                   </div>
                   <h3>{user?.name}</h3>
                   <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '6px' }}>
-                    <span className="badge-tier-chip">{badgeIcon} {badgeName}</span>
+                    <span className="badge-tier-chip">{badge.icon} {badge.name}</span>
                     <span className={`profile-status-badge ${user?.status === 'suspended' ? 'status-suspended' : 'status-active'}`}>
                       {user?.status === 'suspended' ? '🔴 Suspended' : '🟢 Active'}
                     </span>
                   </div>
                 </div>
 
-                {/* Bio preview */}
                 {user?.bio && (
                   <div className="profile-bio-preview">
                     <p>"{user.bio}"</p>
@@ -342,46 +529,53 @@ export default function UserDashboard() {
                     </span>
                   </div>
                   <div className="points-progress-bar">
-                    <div
-                      className="points-progress-fill"
-                      style={{ width: `${pointsProgress}%` }}
-                    />
+                    <div className="points-progress-fill" style={{ width: `${pointsProgress}%` }} />
                   </div>
-                  {nextBadge ? (
+                  {badge.next ? (
                     <p className="points-hint">
-                      {nextThreshold - currentPoints} more pts to unlock {nextBadge} badge
+                      {badge.nextThreshold - currentPoints} more pts to unlock {badge.next} badge
                     </p>
                   ) : (
                     <div className="topfan-earned">
                       🌍 You have reached the highest tier!
                     </div>
                   )}
+
+                  {/* Badge ladder */}
+                  <div className="badge-ladder">
+                    {[
+                      { name: 'Eco Starter', icon: '🌱', min: 0   },
+                      { name: 'Green Hero',  icon: '🌿', min: 25  },
+                      { name: 'Top Fan',     icon: '🏆', min: 75  },
+                      { name: 'Eco Champion',icon: '🌍', min: 150 },
+                    ].map(tier => (
+                      <div
+                        key={tier.name}
+                        className={`badge-ladder-item ${currentPoints >= tier.min ? 'unlocked' : 'locked'}`}
+                      >
+                        <span className="badge-ladder-icon">{tier.icon}</span>
+                        <span className="badge-ladder-name">{tier.name}</span>
+                        <span className="badge-ladder-min">{tier.min === 0 ? 'Start' : `${tier.min}+`}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </section>
-
-              {/* How Points Work Card 
-              <section className="dashboard-section hpw-card">
-                <h3>ℹ️ How Points Work</h3>
-                <p>Earn points by contributing to the community and unlocking badges!</p>
-                <ul className="hpw-list">
-                  <li><strong>+10 pts</strong> for marketplace donations (after pickup is confirmed by both parties)</li>
-                  <li><strong>+5 pts</strong> for contacting a Recycling Center (instant on post)</li>
-                  <li><strong>+5 pts</strong> to the Collector who collects your item</li>
-                </ul>
-                <div className="hpw-badges">
-                  <div className="hpw-badge"><span>🌱 Eco Starter</span> <small>0-24 pts</small></div>
-                  <div className="hpw-badge"><span>🌿 Green Hero</span> <small>25-74 pts</small></div>
-                  <div className="hpw-badge"><span>🏆 Top Fan</span> <small>75-149 pts</small></div>
-                  <div className="hpw-badge"><span>🌍 Eco Champion</span> <small>150+ pts</small></div>
-                </div>
-              </section> */}
             </div>
 
             {/* Edit Profile Form */}
             <section className="dashboard-section profile-edit-right" style={{ height: 'fit-content' }}>
               <h2>Edit Profile Information</h2>
-              {profileSuccess && <div className="success-banner" style={{ background: '#E8F5EF', color: '#1E9B6B', padding: '12px', borderRadius: '8px', marginBottom: '20px', borderLeft: '4px solid #1E9B6B' }}>{profileSuccess}</div>}
-              {profileError && <div className="error-message" style={{ color: '#D45A2A', marginBottom: '20px' }}>{profileError}</div>}
+              {profileSuccess && (
+                <div className="success-banner" style={{ background: '#E8F5EF', color: '#1E9B6B', padding: '12px', borderRadius: '8px', marginBottom: '20px', borderLeft: '4px solid #1E9B6B' }}>
+                  {profileSuccess}
+                </div>
+              )}
+              {profileError && (
+                <div className="error-message" style={{ color: '#D45A2A', marginBottom: '20px' }}>
+                  {profileError}
+                </div>
+              )}
 
               <form onSubmit={handleProfileUpdate} className="profile-form">
                 <div className="form-group">
@@ -429,7 +623,7 @@ export default function UserDashboard() {
         )}
       </div>
 
-      {/* Edit Product Modal */}
+      {/* ── Edit Product Modal ── */}
       {editingProduct && (
         <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div className="modal-content" style={{ background: 'white', padding: '20px', borderRadius: '8px', width: '400px', maxWidth: '90%' }}>
@@ -456,7 +650,7 @@ export default function UserDashboard() {
                   <option value="furniture">Furniture</option>
                   <option value="electronics">Electronics</option>
                   <option value="clothing">Clothing</option>
-                  <option value="tools">Tools & Hardware</option>
+                  <option value="tools">Tools &amp; Hardware</option>
                   <option value="other">Other</option>
                 </select>
               </div>

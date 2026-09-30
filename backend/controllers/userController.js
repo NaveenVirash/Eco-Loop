@@ -22,9 +22,10 @@ exports.getUsers = async (req, res, next) => {
 exports.getLeaderboard = async (req, res, next) => {
     try {
         const topUsers = await User.find({ role: 'user', status: 'active' })
-            .select('name points weeklyPoints createdAt averageRating ratingCount')
+            .select('name points weeklyPoints badge createdAt averageRating ratingCount')
             .sort({ weeklyPoints: -1 })
             .limit(10);
+
         res.status(200).json({
             success: true,
             data: topUsers
