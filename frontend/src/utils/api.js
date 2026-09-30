@@ -103,6 +103,8 @@ export const messageAPI = {
 export const transactionAPI = {
   requestProduct: (productId, message) =>
     axios.post('/api/transactions/request', { productId, message }, getAuthHeaders()),
+  getMyTransactions: () =>
+    axios.get('/api/transactions/my', getAuthHeaders()),
   getProductTransactions: (productId) =>
     axios.get(`/api/transactions/product/${productId}`, getAuthHeaders()),
   acceptRequest: (transactionId) =>

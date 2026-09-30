@@ -2,6 +2,31 @@ const Transaction = require('../models/Transaction');
 const Product = require('../models/Product');
 const { RECYCLING_POST_POINTS, DONOR_POINTS, COLLECTOR_POINTS, awardPointsAndBadge } = require('./pointsHelper');
 
+// @desc    Get all transactions for the currently logged-in user (as buyer or seller)
+// @route   GET /api/transactions/my
+// @access  Private
+exports.getMyTransactions = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const transactions = await Transaction.find({
+            $or: [{ buyer: userId }, { seller: userId }]
+        })
+            .populate('product', 'title description category images status listingType')
+            .populate('buyer',  'name email')
+            .populate('seller', 'name email')
+            .sort('-createdAt');
+
+        res.status(200).json({
+            success: true,
+            count: transactions.length,
+            data: transactions
+        });
+    } catch (err) {
+        res.status(400).json({ success: false, error: err.message });
+    }
+};
+
+
 // @desc    Express interest in a product (Buyer)
 // @route   POST /api/transactions/request
 // @access  Private

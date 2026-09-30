@@ -2,6 +2,7 @@ const express = require('express');
 const {
     requestProduct,
     getProductTransactions,
+    getMyTransactions,
     acceptRequest,
     confirmBuyer,
     confirmSeller
@@ -12,6 +13,7 @@ const router = express.Router();
 
 router.use(protect); // All transaction routes require authentication
 
+router.get('/my', getMyTransactions);
 router.post('/request', requestProduct);
 router.get('/product/:id', getProductTransactions);
 router.put('/:id/accept', acceptRequest);
