@@ -140,7 +140,7 @@ const ProductListing = () => {
                   </p>
                   <div className="lcard-foot">
                     <span className="price price-free">
-                      {product.price || 'Contact'}
+                      {product.price === 'Free' ? 'Free' : product.price ? `Rs.${product.price}` : 'Contact'}
                     </span>
                     <div className="pts-badge">⭐ +10 pts</div>
                   </div>
