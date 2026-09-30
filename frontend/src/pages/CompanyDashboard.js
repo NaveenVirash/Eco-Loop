@@ -301,7 +301,7 @@ export default function CompanyDashboard() {
                         <span className="category-badge">{product.category}</span>
                       </div>
                       <p className="product-desc">{product.description}</p>
-                      {product.price && <p className="product-price">${product.price}</p>}
+                      {product.price && <p className="product-price">Rs.{product.price}</p>}
                       <p className="product-date">
                         Posted: {new Date(product.createdAt).toLocaleDateString()}
                       </p>
@@ -341,7 +341,7 @@ export default function CompanyDashboard() {
                         <span className="category-badge">{product.category}</span>
                       </div>
                       <p className="product-desc">{product.description}</p>
-                      {product.price && <p className="product-price">${product.price}</p>}
+                      {product.price && <p className="product-price">Rs.{product.price}</p>}
                       <p className="product-date">
                         Posted: {new Date(product.createdAt).toLocaleDateString()}
                       </p>
